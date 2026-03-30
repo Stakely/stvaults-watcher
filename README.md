@@ -1,4 +1,4 @@
-# stvaults-watcher
+# stVaults Watcher
 
 [![CI](https://github.com/stakely/stvaults-watcher/actions/workflows/ci.yml/badge.svg)](https://github.com/stakely/stvaults-watcher/actions/workflows/ci.yml)
 [![Node](https://img.shields.io/badge/node-%3E%3D24-brightgreen)](https://nodejs.org)
