@@ -1,0 +1,30 @@
+{
+  "name": "stvaults-watcher",
+  "version": "1.0.0",
+  "description": "Monitor for Lido stVaults. Prometheus metrics and Discord alerts",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test tests/**/*.test.js",
+    "test:grafana": "tsx --test tests/grafana/build.test.ts tests/grafana/dashboard.test.ts tests/grafana/panels.test.ts",
+    "test:all": "npm test && npm run test:grafana",
+    "lint": "eslint . --ext .js,.ts",
+    "lint:fix": "eslint . --ext .js,.ts --fix",
+    "grafana:build": "tsx src/grafana/build.ts"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "prom-client": "^15.1.0",
+    "viem": "^2.21.0"
+  },
+  "devDependencies": {
+    "@grafana/grafana-foundation-sdk": "~0.0.12",
+    "@typescript-eslint/eslint-plugin": "^8.57.1",
+    "@typescript-eslint/parser": "^8.57.1",
+    "eslint": "^10.1.0",
+    "tsx": "^4.21.0"
+  }
+}

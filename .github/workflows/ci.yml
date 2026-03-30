@@ -1,0 +1,68 @@
+# Validates Node app + Grafana dashboard as code.
+# Note: Grafana's official dashboard-linter (github.com/grafana/dashboard-linter) enforces
+# kubernetes-mixin-style rules (job/instance matchers, datasource variable names, editable:false, etc.)
+# and does not match this project's PromQL; use JSON + build sync checks instead.
+
+name: CI
+
+on:
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+
+      - run: npm ci
+
+      - name: Run tests
+        run: npm run test:all
+
+      - name: Build Docker image
+        run: docker build -t stvaults-watcher:ci .
+
+      - name: Build Grafana dashboard from TypeScript
+        run: npm run grafana:build
+
+      - name: Ensure committed dashboard matches generated output
+        run: |
+          if ! git diff --exit-code -- grafana/dashboard.json; then
+            echo "::error::grafana/dashboard.json is out of date. Run npm run grafana:build and commit the result."
+            exit 1
+          fi
+
+      - name: Validate dashboard JSON structure
+        run: |
+          node <<'NODE'
+          const fs = require("fs");
+          const raw = fs.readFileSync("grafana/dashboard.json", "utf8");
+          let d;
+          try {
+            d = JSON.parse(raw);
+          } catch (e) {
+            console.error("Invalid JSON:", e.message);
+            process.exit(1);
+          }
+          if (typeof d.schemaVersion !== "number") {
+            console.error("Expected dashboard.schemaVersion to be a number");
+            process.exit(1);
+          }
+          if (!Array.isArray(d.panels)) {
+            console.error("Expected dashboard.panels to be an array");
+            process.exit(1);
+          }
+          console.log("dashboard.json: valid JSON and minimal Grafana shape OK");
+          NODE

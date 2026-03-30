@@ -1,0 +1,2722 @@
+{
+  "timezone": "browser",
+  "editable": true,
+  "graphTooltip": 0,
+  "fiscalYearStartMonth": 0,
+  "schemaVersion": 42,
+  "templating": {
+    "list": [
+      {
+        "type": "query",
+        "name": "chain",
+        "skipUrlSync": false,
+        "multi": false,
+        "allowCustomValue": true,
+        "includeAll": false,
+        "auto": false,
+        "auto_min": "10s",
+        "auto_count": 30,
+        "label": "Chain",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "query": "label_values(lido_vault_total_value_eth, chain)",
+        "refresh": 1,
+        "sort": 1
+      },
+      {
+        "type": "query",
+        "name": "vault_name",
+        "skipUrlSync": false,
+        "multi": false,
+        "allowCustomValue": false,
+        "includeAll": true,
+        "auto": false,
+        "auto_min": "10s",
+        "auto_count": 30,
+        "label": "Vault",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "query": "label_values(lido_vault_total_value_eth{chain=~\"$chain\"}, vault_name)",
+        "refresh": 2,
+        "sort": 1,
+        "allValue": ".*"
+      },
+      {
+        "type": "query",
+        "name": "explorer_base",
+        "label": "Explorer",
+        "hide": 2,
+        "skipUrlSync": false,
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "definition": "label_values(stvaults_watcher_info{chain=\"$chain\"}, explorer_url)",
+        "query": {
+          "query": "label_values(stvaults_watcher_info{chain=\"$chain\"}, explorer_url)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "sort": 0,
+        "includeAll": false,
+        "multi": false,
+        "allValue": null,
+        "current": {},
+        "options": []
+      }
+    ]
+  },
+  "annotations": {},
+  "title": "stvaults-watcher",
+  "uid": "stvaults-watcher",
+  "tags": [
+    "ETHEREUM",
+    "LIDO"
+  ],
+  "refresh": "1m",
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "row",
+      "collapsed": false,
+      "id": 0,
+      "panels": [],
+      "title": "📊 Status",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "h": 1,
+        "w": 24
+      }
+    },
+    {
+      "type": "stat",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "Watcher version",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "graphMode": "none",
+        "colorMode": "background_solid",
+        "justifyMode": "auto",
+        "textMode": "name",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "percentChangeColorMode": "standard",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "stvaults_watcher_info{chain=\"$chain\"}",
+          "legendFormat": "v{{version}}"
+        }
+      ],
+      "gridPos": {
+        "x": 0,
+        "y": 1,
+        "w": 4,
+        "h": 5
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "#B877D9"
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "type": "stat",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "Watcher alive",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "graphMode": "none",
+        "colorMode": "background_solid",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "percentChangeColorMode": "standard",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "(time() - stvaults_watcher_last_poll_timestamp{chain=~\"$chain\"}) < bool 300",
+          "legendFormat": "{{chain}}"
+        }
+      ],
+      "description": "YES if the watcher has polled in the last 5 minutes. Calculated as: (current time − last poll timestamp) < 300 seconds.",
+      "gridPos": {
+        "x": 4,
+        "y": 1,
+        "w": 4,
+        "h": 5
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "NO",
+                  "color": "#F2495C",
+                  "index": 0
+                },
+                "1": {
+                  "text": "YES",
+                  "color": "#73BF69",
+                  "index": 1
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "#F2495C"
+              },
+              {
+                "value": 1,
+                "color": "#73BF69"
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "type": "stat",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "Vault healthy",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "graphMode": "none",
+        "colorMode": "background_solid",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "percentChangeColorMode": "standard",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "lido_vault_is_healthy{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "description": "Whether the vault is considered healthy by VaultHub (isVaultHealthy on-chain).",
+      "gridPos": {
+        "x": 8,
+        "y": 1,
+        "w": 4,
+        "h": 5
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "NO",
+                  "color": "#F2495C",
+                  "index": 0
+                },
+                "1": {
+                  "text": "YES",
+                  "color": "#73BF69",
+                  "index": 1
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "#F2495C"
+              },
+              {
+                "value": 1,
+                "color": "#73BF69"
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "type": "stat",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "Unfinalized requests",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "graphMode": "none",
+        "colorMode": "background_solid",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "percentChangeColorMode": "standard",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "lido_wq_unfinalized_requests{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "description": "Number of withdrawal requests in the queue not yet finalized on L1.",
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "#73BF69"
+              },
+              {
+                "value": 1,
+                "color": "#FF9830"
+              },
+              {
+                "value": 10,
+                "color": "#F2495C"
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 1,
+        "w": 4,
+        "h": 5
+      }
+    },
+    {
+      "type": "stat",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "Inactive ETH",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "graphMode": "none",
+        "colorMode": "background_solid",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "percentChangeColorMode": "standard",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "lido_vault_inactive_eth{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "eth",
+          "decimals": 4,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "#73BF69"
+              },
+              {
+                "value": 1,
+                "color": "#FF9830"
+              },
+              {
+                "value": 32,
+                "color": "#F2495C"
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "description": "ETH in the vault that is not yet staked (available minus staged). Used for withdrawals and rebalancing.",
+      "gridPos": {
+        "x": 16,
+        "y": 1,
+        "w": 4,
+        "h": 5
+      }
+    },
+    {
+      "type": "stat",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "Withdrawal deficit",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "graphMode": "none",
+        "colorMode": "background_solid",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "percentChangeColorMode": "standard",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "clamp_min(lido_wq_unfinalized_assets_eth{chain=~\"$chain\",vault_name=~\"$vault_name\"} - lido_vault_available_balance_eth{chain=~\"$chain\",vault_name=~\"$vault_name\"}, 0)",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "eth",
+          "decimals": 4,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "#73BF69"
+              },
+              {
+                "value": 0.01,
+                "color": "#FF9830"
+              },
+              {
+                "value": 1,
+                "color": "#F2495C"
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "description": "ETH needed from validators to cover pending withdrawals (0 = enough liquidity)",
+      "gridPos": {
+        "x": 20,
+        "y": 1,
+        "w": 4,
+        "h": 5
+      }
+    },
+    {
+      "type": "row",
+      "collapsed": false,
+      "id": 0,
+      "panels": [],
+      "title": "💰 Vault state",
+      "gridPos": {
+        "x": 0,
+        "y": 6,
+        "h": 1,
+        "w": 24
+      }
+    },
+    {
+      "type": "stat",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "Total value",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "graphMode": "area",
+        "colorMode": "value",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "percentChangeColorMode": "standard",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "lido_vault_total_value_eth{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "eth",
+          "decimals": 4,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "#5794F2"
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "description": "Total value of the vault (VaultHub totalValue) in ETH.",
+      "gridPos": {
+        "x": 0,
+        "y": 7,
+        "w": 4,
+        "h": 5
+      }
+    },
+    {
+      "type": "stat",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "Available balance",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "graphMode": "area",
+        "colorMode": "value",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "percentChangeColorMode": "standard",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "lido_vault_available_balance_eth{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "eth",
+          "decimals": 4,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "#5794F2"
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "description": "ETH available in the StakingVault (liquid, not yet staged for staking).",
+      "gridPos": {
+        "x": 4,
+        "y": 7,
+        "w": 4,
+        "h": 5
+      }
+    },
+    {
+      "type": "stat",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "Staged balance",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "graphMode": "area",
+        "colorMode": "value",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "percentChangeColorMode": "standard",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "lido_vault_staged_balance_eth{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "eth",
+          "decimals": 4,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "#5794F2"
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "description": "ETH staged in the StakingVault (pending to be staked).",
+      "gridPos": {
+        "x": 8,
+        "y": 7,
+        "w": 4,
+        "h": 5
+      }
+    },
+    {
+      "type": "stat",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "Withdrawable value",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "graphMode": "area",
+        "colorMode": "value",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "percentChangeColorMode": "standard",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "lido_vault_withdrawable_value_eth{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "eth",
+          "decimals": 4,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "#5794F2"
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "description": "ETH that can be withdrawn (VaultHub withdrawableValue).",
+      "gridPos": {
+        "x": 12,
+        "y": 7,
+        "w": 4,
+        "h": 5
+      }
+    },
+    {
+      "type": "stat",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "Node Operator fee",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "graphMode": "area",
+        "colorMode": "value",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "percentChangeColorMode": "standard",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "lido_vault_node_operator_fee_eth{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "eth",
+          "decimals": 4,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "#5794F2"
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "description": "Undisbursed node operator fee accrued in Dashboard (accruedFee).",
+      "gridPos": {
+        "x": 16,
+        "y": 7,
+        "w": 4,
+        "h": 5
+      }
+    },
+    {
+      "type": "stat",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "Staking efficiency",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "graphMode": "none",
+        "colorMode": "background_solid",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "percentChangeColorMode": "standard",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "(lido_vault_total_value_eth{chain=~\"$chain\",vault_name=~\"$vault_name\"} - lido_vault_inactive_eth{chain=~\"$chain\",vault_name=~\"$vault_name\"}) / lido_vault_total_value_eth{chain=~\"$chain\",vault_name=~\"$vault_name\"} * 100",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 2,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "#F2495C"
+              },
+              {
+                "value": 80,
+                "color": "#FF9830"
+              },
+              {
+                "value": 96,
+                "color": "#73BF69"
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "description": "% of vault ETH actively staked and generating yield. Computed as (total_value − inactive_eth) / total_value × 100.",
+      "gridPos": {
+        "x": 20,
+        "y": 7,
+        "w": 4,
+        "h": 5
+      }
+    },
+    {
+      "type": "timeseries",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "Total value (ETH)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 15
+          },
+          "unit": "eth",
+          "decimals": 4
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "lido_vault_total_value_eth{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "gridPos": {
+        "x": 0,
+        "y": 12,
+        "w": 12,
+        "h": 8
+      }
+    },
+    {
+      "type": "timeseries",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "Available vs Staged (ETH)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 15
+          },
+          "unit": "eth",
+          "decimals": 4
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "lido_vault_available_balance_eth{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "gridPos": {
+        "x": 12,
+        "y": 12,
+        "w": 12,
+        "h": 8
+      }
+    },
+    {
+      "type": "row",
+      "collapsed": false,
+      "id": 0,
+      "panels": [],
+      "title": "📋 Contracts",
+      "gridPos": {
+        "x": 0,
+        "y": 20,
+        "h": 1,
+        "w": 24
+      }
+    },
+    {
+      "type": "table",
+      "title": "Contracts",
+      "description": "Contract addresses. Click an address to open in the block explorer.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 21,
+        "w": 24,
+        "h": 6
+      },
+      "targets": [
+        {
+          "expr": "lido_vault_contracts_info{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}}",
+          "refId": "A",
+          "instant": true
+        }
+      ],
+      "transformations": [
+        {
+          "id": "labelsToFields",
+          "options": {
+            "mode": "rows",
+            "keepLabels": [
+              "vault_addr",
+              "pool_addr",
+              "wq_addr",
+              "dashboard_addr"
+            ]
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "renameByName": {
+              "label": "Name",
+              "value": "Contract"
+            }
+          }
+        },
+        {
+          "id": "filterByValue",
+          "options": {
+            "type": "include",
+            "match": "any",
+            "filters": [
+              {
+                "fieldName": "Contract",
+                "config": {
+                  "id": "isNotNull"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Contract"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Open in Explorer",
+                    "url": "${explorer_base}/address/${__value.raw}",
+                    "targetBlank": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Name"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "vault_addr": {
+                        "text": "Vault",
+                        "color": "green",
+                        "index": 0
+                      }
+                    }
+                  },
+                  {
+                    "type": "value",
+                    "options": {
+                      "pool_addr": {
+                        "text": "Pool",
+                        "color": "blue",
+                        "index": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "value",
+                    "options": {
+                      "wq_addr": {
+                        "text": "Withdrawal Queue",
+                        "color": "orange",
+                        "index": 2
+                      }
+                    }
+                  },
+                  {
+                    "type": "value",
+                    "options": {
+                      "dashboard_addr": {
+                        "text": "Dashboard",
+                        "color": "purple",
+                        "index": 3
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false,
+          "reducer": [
+            "sum"
+          ],
+          "countRows": false,
+          "fields": ""
+        }
+      }
+    },
+    {
+      "type": "row",
+      "collapsed": false,
+      "id": 0,
+      "panels": [],
+      "title": "🏥 Health",
+      "gridPos": {
+        "x": 0,
+        "y": 27,
+        "h": 1,
+        "w": 24
+      }
+    },
+    {
+      "type": "gauge",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "Health factor",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto",
+        "minVizWidth": 75,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "minVizHeight": 75,
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "lido_vault_health_factor{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 2,
+          "min": 0,
+          "max": 200,
+          "mappings": [
+            {
+              "type": "range",
+              "options": {
+                "from": 9999,
+                "to": null,
+                "result": {
+                  "text": "∞",
+                  "color": "#73BF69"
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "#F2495C"
+              },
+              {
+                "value": 102,
+                "color": "#FF9830"
+              },
+              {
+                "value": 107,
+                "color": "#73BF69"
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 28,
+        "w": 6,
+        "h": 7
+      }
+    },
+    {
+      "type": "gauge",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "stETH Minted",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto",
+        "minVizWidth": 75,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "minVizHeight": 75,
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "lido_vault_utilization_ratio{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 2,
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "#73BF69"
+              },
+              {
+                "value": 80,
+                "color": "#FF9830"
+              },
+              {
+                "value": 95,
+                "color": "#F2495C"
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "description": "% of stETH minting capacity used (liabilityShares / mintingCapacityShares)",
+      "gridPos": {
+        "x": 6,
+        "y": 28,
+        "w": 6,
+        "h": 7
+      }
+    },
+    {
+      "type": "stat",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "Forced rebalance threshold",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "graphMode": "none",
+        "colorMode": "none",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "percentChangeColorMode": "standard",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "lido_vault_forced_rebalance_threshold{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 2
+        },
+        "overrides": []
+      },
+      "description": "If Health Factor falls below 100% (based on this threshold), the vault is subject to forced rebalancing",
+      "gridPos": {
+        "x": 12,
+        "y": 28,
+        "w": 3,
+        "h": 7
+      }
+    },
+    {
+      "type": "stat",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "Reserve ratio",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "graphMode": "none",
+        "colorMode": "none",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "percentChangeColorMode": "standard",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "lido_vault_reserve_ratio{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 2
+        },
+        "overrides": []
+      },
+      "description": "% of Total Value reserved as collateral; stETH cannot be minted against this amount",
+      "gridPos": {
+        "x": 15,
+        "y": 28,
+        "w": 3,
+        "h": 7
+      }
+    },
+    {
+      "type": "stat",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "Oracle report",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "graphMode": "none",
+        "colorMode": "background_solid",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "percentChangeColorMode": "standard",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "lido_vault_report_fresh{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "gridPos": {
+        "x": 18,
+        "y": 28,
+        "w": 3,
+        "h": 7
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "STALE",
+                  "color": "#5794F2",
+                  "index": 0
+                },
+                "1": {
+                  "text": "FRESH",
+                  "color": "#73BF69",
+                  "index": 1
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "#5794F2"
+              },
+              {
+                "value": 1,
+                "color": "#73BF69"
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "type": "stat",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "Health shortfall",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "graphMode": "none",
+        "colorMode": "value",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "percentChangeColorMode": "standard",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "lido_vault_health_shortfall_shares{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "description": "Shares needed to restore health (0 = healthy)",
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "#73BF69"
+              },
+              {
+                "value": 1,
+                "color": "#F2495C"
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 21,
+        "y": 28,
+        "w": 3,
+        "h": 7
+      }
+    },
+    {
+      "type": "timeseries",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "Health factor %",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 15
+          },
+          "unit": "percent",
+          "decimals": 2,
+          "mappings": [
+            {
+              "type": "range",
+              "options": {
+                "from": 9999,
+                "to": null,
+                "result": {
+                  "text": "∞",
+                  "color": "#73BF69"
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "#F2495C"
+              },
+              {
+                "value": 102,
+                "color": "#FF9830"
+              },
+              {
+                "value": 107,
+                "color": "#73BF69"
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "clamp_max(lido_vault_health_factor{chain=~\"$chain\",vault_name=~\"$vault_name\"}, 9999)",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "gridPos": {
+        "x": 0,
+        "y": 35,
+        "w": 12,
+        "h": 8
+      }
+    },
+    {
+      "type": "timeseries",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "stETH Minted %",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 15
+          },
+          "unit": "percent",
+          "decimals": 2,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "#73BF69"
+              },
+              {
+                "value": 80,
+                "color": "#FF9830"
+              },
+              {
+                "value": 95,
+                "color": "#F2495C"
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "lido_vault_utilization_ratio{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "gridPos": {
+        "x": 12,
+        "y": 35,
+        "w": 12,
+        "h": 8
+      }
+    },
+    {
+      "type": "row",
+      "collapsed": false,
+      "id": 0,
+      "panels": [],
+      "title": "🪙 stETH liability",
+      "gridPos": {
+        "x": 0,
+        "y": 43,
+        "h": 1,
+        "w": 24
+      }
+    },
+    {
+      "type": "stat",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "stETH liability",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "graphMode": "area",
+        "colorMode": "value",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "percentChangeColorMode": "standard",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "lido_vault_steth_liability_eth{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "eth",
+          "decimals": 4,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "#5794F2"
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 44,
+        "w": 8,
+        "h": 5
+      }
+    },
+    {
+      "type": "stat",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "Minting capacity",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "graphMode": "area",
+        "colorMode": "value",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "percentChangeColorMode": "standard",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "lido_vault_minting_capacity_eth{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "eth",
+          "decimals": 4,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "#5794F2"
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 8,
+        "y": 44,
+        "w": 8,
+        "h": 5
+      }
+    },
+    {
+      "type": "stat",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "Withdrawable value",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "graphMode": "area",
+        "colorMode": "value",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "percentChangeColorMode": "standard",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "lido_vault_withdrawable_value_eth{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "eth",
+          "decimals": 4,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "#5794F2"
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 16,
+        "y": 44,
+        "w": 8,
+        "h": 5
+      }
+    },
+    {
+      "type": "row",
+      "collapsed": false,
+      "id": 0,
+      "panels": [],
+      "title": "📤 Withdrawal queue",
+      "gridPos": {
+        "x": 0,
+        "y": 49,
+        "h": 1,
+        "w": 24
+      }
+    },
+    {
+      "type": "stat",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "Unfinalized requests",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "graphMode": "none",
+        "colorMode": "background_solid",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "percentChangeColorMode": "standard",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "lido_wq_unfinalized_requests{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "#73BF69"
+              },
+              {
+                "value": 1,
+                "color": "#FF9830"
+              },
+              {
+                "value": 10,
+                "color": "#F2495C"
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 50,
+        "w": 6,
+        "h": 5
+      }
+    },
+    {
+      "type": "stat",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "Unfinalized assets",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "graphMode": "area",
+        "colorMode": "value",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "percentChangeColorMode": "standard",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "lido_wq_unfinalized_assets_eth{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "eth",
+          "decimals": 4,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "#5794F2"
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 6,
+        "y": 50,
+        "w": 6,
+        "h": 5
+      }
+    },
+    {
+      "type": "stat",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "Last request ID",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "graphMode": "none",
+        "colorMode": "none",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "percentChangeColorMode": "standard",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "lido_wq_last_request_id{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 50,
+        "w": 6,
+        "h": 5
+      }
+    },
+    {
+      "type": "stat",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "Last finalized ID",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "graphMode": "none",
+        "colorMode": "none",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "percentChangeColorMode": "standard",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "lido_wq_last_finalized_id{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 18,
+        "y": 50,
+        "w": 6,
+        "h": 5
+      }
+    },
+    {
+      "type": "timeseries",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "Unfinalized assets (ETH)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 15
+          },
+          "unit": "eth",
+          "decimals": 4
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "lido_wq_unfinalized_assets_eth{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "gridPos": {
+        "x": 0,
+        "y": 55,
+        "w": 24,
+        "h": 8
+      }
+    },
+    {
+      "type": "row",
+      "collapsed": false,
+      "id": 0,
+      "panels": [],
+      "title": "🛡️ PDG (Predeposit Guarantee)",
+      "gridPos": {
+        "x": 0,
+        "y": 63,
+        "h": 1,
+        "w": 24
+      }
+    },
+    {
+      "type": "stat",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "PDG Policy",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "graphMode": "none",
+        "colorMode": "background_solid",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "percentChangeColorMode": "standard",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "lido_vault_pdg_policy{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "description": "Dashboard policy for PDG flow: 0=STRICT, 1=ALLOW_PROVE, 2=ALLOW_DEPOSIT_AND_PROVE.",
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "STRICT",
+                  "color": "#5794F2",
+                  "index": 0
+                },
+                "1": {
+                  "text": "ALLOW_PROVE",
+                  "color": "#FF9830",
+                  "index": 1
+                },
+                "2": {
+                  "text": "ALLOW_DEPOSIT_AND_PROVE",
+                  "color": "#73BF69",
+                  "index": 2
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "#5794F2"
+              },
+              {
+                "value": 1,
+                "color": "#FF9830"
+              },
+              {
+                "value": 2,
+                "color": "#73BF69"
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 64,
+        "w": 5,
+        "h": 5
+      }
+    },
+    {
+      "type": "stat",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "PDG Total",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "graphMode": "none",
+        "colorMode": "value",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "percentChangeColorMode": "standard",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "lido_vault_pdg_total_eth{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "eth",
+          "decimals": 4,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "#73BF69"
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "description": "Total guarantee balance in PDG for this vault node operator.",
+      "gridPos": {
+        "x": 5,
+        "y": 64,
+        "w": 5,
+        "h": 5
+      }
+    },
+    {
+      "type": "stat",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "PDG Locked",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "graphMode": "none",
+        "colorMode": "value",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "percentChangeColorMode": "standard",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "lido_vault_pdg_locked_eth{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "eth",
+          "decimals": 4,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "#73BF69"
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "description": "Guarantee currently locked by active predeposits.",
+      "gridPos": {
+        "x": 10,
+        "y": 64,
+        "w": 5,
+        "h": 5
+      }
+    },
+    {
+      "type": "stat",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "PDG Unlocked",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "graphMode": "none",
+        "colorMode": "value",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "percentChangeColorMode": "standard",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "lido_vault_pdg_unlocked_eth{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "eth",
+          "decimals": 4,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "#73BF69"
+              },
+              {
+                "value": 0.000001,
+                "color": "#FF780A"
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "description": "Guarantee available for new predeposits (total - locked).",
+      "gridPos": {
+        "x": 15,
+        "y": 64,
+        "w": 5,
+        "h": 5
+      }
+    },
+    {
+      "type": "stat",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "PDG Pending activations",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "graphMode": "none",
+        "colorMode": "background_solid",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "percentChangeColorMode": "standard",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "lido_vault_pdg_pending_activations{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "description": "Validators in PREDEPOSITED/PROVEN stages awaiting activation.",
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "#73BF69"
+              },
+              {
+                "value": 1,
+                "color": "#FF9830"
+              },
+              {
+                "value": 10,
+                "color": "#F2495C"
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 20,
+        "y": 64,
+        "w": 4,
+        "h": 5
+      }
+    },
+    {
+      "type": "timeseries",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "PDG Locked vs Unlocked (ETH)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 15
+          },
+          "unit": "eth",
+          "decimals": 4
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "locked$"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#FF9830"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "unlocked$"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#73BF69"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "expr": "lido_vault_pdg_locked_eth{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}} locked"
+        },
+        {
+          "expr": "lido_vault_pdg_unlocked_eth{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}} unlocked"
+        }
+      ],
+      "gridPos": {
+        "x": 0,
+        "y": 69,
+        "w": 24,
+        "h": 8
+      }
+    },
+    {
+      "type": "row",
+      "collapsed": false,
+      "id": 0,
+      "panels": [],
+      "title": "🤖 Watcher",
+      "gridPos": {
+        "x": 0,
+        "y": 77,
+        "h": 1,
+        "w": 24
+      }
+    },
+    {
+      "type": "stat",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "Poll errors",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "graphMode": "none",
+        "colorMode": "value",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "percentChangeColorMode": "standard",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "increase(stvaults_watcher_poll_errors_total{chain=~\"$chain\"}[$__range])",
+          "legendFormat": "{{chain}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "#73BF69"
+              },
+              {
+                "value": 1,
+                "color": "#FF780A"
+              },
+              {
+                "value": 10,
+                "color": "#F2495C"
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          },
+          "noValue": "0"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 78,
+        "w": 6,
+        "h": 5
+      }
+    },
+    {
+      "type": "stat",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "Last successful poll",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "graphMode": "none",
+        "colorMode": "none",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "percentChangeColorMode": "standard",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "stvaults_watcher_last_poll_timestamp{chain=~\"$chain\"} * 1000",
+          "legendFormat": "{{chain}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "dateTimeFromNow"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 6,
+        "y": 78,
+        "w": 6,
+        "h": 5
+      }
+    },
+    {
+      "type": "stat",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "Time since last poll",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "graphMode": "none",
+        "colorMode": "value",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "percentChangeColorMode": "standard",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "time() - stvaults_watcher_last_poll_timestamp{chain=~\"$chain\"}",
+          "legendFormat": "{{chain}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "#73BF69"
+              },
+              {
+                "value": 120,
+                "color": "#FF9830"
+              },
+              {
+                "value": 300,
+                "color": "#F2495C"
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 78,
+        "w": 6,
+        "h": 5
+      }
+    },
+    {
+      "type": "row",
+      "collapsed": false,
+      "id": 0,
+      "panels": [],
+      "title": "📜 Logs",
+      "gridPos": {
+        "x": 0,
+        "y": 83,
+        "h": 1,
+        "w": 24
+      }
+    },
+    {
+      "type": "logs",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "Watcher logs",
+      "datasource": {
+        "type": "loki",
+        "uid": "${DS_LOKI}"
+      },
+      "options": {
+        "showLabels": false,
+        "showCommonLabels": false,
+        "showTime": true,
+        "showLogContextToggle": false,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": false,
+        "enableLogDetails": true,
+        "sortOrder": "Ascending",
+        "dedupStrategy": "none",
+        "fontSize": "sm",
+        "syntaxHighlighting": true
+      },
+      "targets": [
+        {
+          "expr": "{app=\"stvaults-watcher\", chain=~\"$chain\"}",
+          "maxLines": 200
+        }
+      ],
+      "gridPos": {
+        "x": 0,
+        "y": 84,
+        "w": 24,
+        "h": 12
+      }
+    }
+  ],
+  "links": [
+    {
+      "title": "GitHub Repository",
+      "url": "https://github.com/Stakely/stvaults-watcher",
+      "targetBlank": true,
+      "icon": "external link"
+    }
+  ],
+  "__inputs": [
+    {
+      "name": "DS_PROMETHEUS",
+      "label": "Prometheus",
+      "type": "datasource",
+      "pluginId": "prometheus",
+      "pluginName": "Prometheus",
+      "current": {
+        "selected": false,
+        "value": ""
+      }
+    },
+    {
+      "name": "DS_LOKI",
+      "label": "Loki",
+      "type": "datasource",
+      "pluginId": "loki",
+      "pluginName": "Loki",
+      "current": {
+        "selected": false,
+        "value": ""
+      }
+    }
+  ],
+  "__requires": [
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "10.x"
+    },
+    {
+      "type": "datasource",
+      "id": "prometheus",
+      "name": "Prometheus",
+      "version": "2.x"
+    },
+    {
+      "type": "datasource",
+      "id": "loki",
+      "name": "Loki",
+      "version": "2.x"
+    }
+  ]
+}
