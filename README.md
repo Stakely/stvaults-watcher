@@ -3,6 +3,7 @@
 [![CI](https://github.com/stakely/stvaults-watcher/actions/workflows/ci.yml/badge.svg)](https://github.com/stakely/stvaults-watcher/actions/workflows/ci.yml)
 [![Node](https://img.shields.io/badge/node-%3E%3D24-brightgreen)](https://nodejs.org)
 [![Version](https://img.shields.io/github/package-json/v/stakely/stvaults-watcher)](package.json)
+[![Docker Hub](https://img.shields.io/docker/pulls/stakely/stvaults-watcher?logo=docker&label=Docker%20Hub)](https://hub.docker.com/r/stakely/stvaults-watcher)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Monitoring watcher for [Lido V3](https://docs.lido.fi) stVaults with DeFi Wrapper pools. Reads on-chain data via [viem](https://viem.sh), exposes Prometheus metrics, and sends Discord alerts for health and withdrawal events.
@@ -26,6 +27,8 @@ Monitoring watcher for [Lido V3](https://docs.lido.fi) stVaults with DeFi Wrappe
 
 ## Quick start
 
+The image is published to [Docker Hub](https://hub.docker.com/r/stakely/stvaults-watcher) and updated automatically on every release.
+
 **Docker Compose (recommended)**
 
 ```bash
@@ -44,6 +47,10 @@ node src/index.js
 ```
 
 Metrics will be available at `http://localhost:9600/metrics`.
+
+<p align="center">
+  <img src="static/terminal.png" alt="stvaults-watcher terminal output" width="800" />
+</p>
 
 ## Configuration
 

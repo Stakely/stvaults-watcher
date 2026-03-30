@@ -75,7 +75,7 @@ function q(metric: string) {
 // ---------------------------------------------------------------------------
 
 export function buildDashboard(): object {
-  const builder = new DashboardBuilder("stvaults-watcher")
+  const builder = new DashboardBuilder("stVaults Watcher")
     .uid("stvaults-watcher")
     .tags(["ETHEREUM", "LIDO"])
     .refresh("1m")
