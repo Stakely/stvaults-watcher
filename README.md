@@ -79,8 +79,7 @@ Copy `.env.example` to `.env` and adjust the values.
 ```json
 [
   { "vault": "0x...", "pool": "0x...", "vault_name": "my-vault" },
-  { "vault": "0x...", "vault_name": "vault-no-pool" },
-  { "vault": "0x...", "withdrawalQueue": "0x...", "dashboard": "0x...", "vault_name": "manual-wrapper-addrs" }
+  { "vault": "0x...", "vault_name": "vault-no-pool" }
 ]
 ```
 
