@@ -22,7 +22,8 @@ const optionalEnvVars = {
   METRICS_PORT: 9600,
   ALERT_COOLDOWN_MIN: 30,
   DISCORD_USERNAME: 'stvaults-watcher',
-  DISCORD_AVATAR_URL: 'https://img.lightshot.app/LsNhkD8gRZaPcHK8lJqnWQ.png',
+  DISCORD_AVATAR_URL:
+    'https://raw.githubusercontent.com/stakely/stvaults-watcher/main/static/avatar.png',
   // Default inactive ETH threshold (in ETH).
   // Note: on-chain comparisons operate in wei, so we convert this when loading config.
   INACTIVE_ETH_THRESHOLD: 2,

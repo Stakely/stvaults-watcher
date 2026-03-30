@@ -58,7 +58,7 @@ Copy `.env.example` to `.env` and adjust the values.
 | `METRICS_PORT` | | `9600` | Prometheus metrics port |
 | `DISCORD_WEBHOOK_URL` | | | Enables Discord alerts when set |
 | `DISCORD_USERNAME` | | `stvaults-watcher` | Webhook display name for Discord alerts |
-| `DISCORD_AVATAR_URL` | | `https://img.lightshot.app/LsNhkD8gRZaPcHK8lJqnWQ.png` | Webhook avatar URL for Discord alerts |
+| `DISCORD_AVATAR_URL` | | `static/avatar.png` | Webhook avatar URL for Discord alerts |
 | `ALERT_COOLDOWN_MIN` | | `30` | Alert cooldown per vault per type (minutes) |
 | `HEALTH_WARNING_THRESHOLD` | | `107` | Health factor warning level (%) |
 | `HEALTH_CRITICAL_THRESHOLD` | | `102` | Health factor critical level (%) |
