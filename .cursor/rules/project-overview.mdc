@@ -1,0 +1,136 @@
+---
+description: stvaults-watcher project overview and architecture
+alwaysApply: true
+---
+
+# stvaults-watcher
+
+Node.js 24 ESM app that monitors Lido V3 stVaults with DeFi Wrapper pools. Runs in Docker, exposes Prometheus metrics, sends Discord alerts.
+
+## Architecture
+
+- **Polling loop** (`src/index.js`): Every `POLL_INTERVAL_MIN` minutes reads on-chain data via viem, updates Prometheus gauges, evaluates alert conditions, sends Discord webhooks.
+- **No CLI dependency**: All reads are direct contract calls via viem. Lido CLI is only used by the operator separately for write operations (finalize withdrawals, submit reports, exit validators).
+
+## Key files
+
+| File | Purpose |
+|------|---------|
+| `src/index.js` | Entry point, polling loop, alert evaluation, graceful shutdown |
+| `src/config.js` | Loads and validates env vars; resolves network constants from `networks.json` |
+| `src/networks.json` | Per-network constants: chainId, explorerUrl, Lido contract addresses (vaultHub, stEth, pdg) |
+| `src/chain.js` | Creates viem `publicClient` |
+| `src/abis.js` | Human-readable ABIs (one-liner per method) for VaultHub, StakingVault, WithdrawalQueue, Pool, stETH |
+| `src/monitors/vaultMonitor.js` | Orchestrator: reads all contract data, updates metrics, returns snapshots for alerting |
+| `src/monitors/healthMonitor.js` | Health factor and utilization ratio computation |
+| `src/monitors/efficiencyMonitor.js` | Inactive ETH detection (available - staged) |
+| `src/monitors/withdrawalMonitor.js` | Withdrawal queue helpers |
+| `src/metrics/definitions.js` | All Prometheus Gauge/Counter definitions (`vault` metrics use `vault`, `vault_name`, `chain`; watcher/contract-info metrics use their own label sets) |
+| `src/metrics/server.js` | HTTP server on `/metrics` (native `http` module) |
+| `src/notifications/discord.js` | Discord embeds with per-alert-type cooldown |
+| `src/grafana/panels.ts` | Reusable panel builder helpers (statPanel, timeseriesPanel) |
+| `src/grafana/dashboard.ts` | Dashboard definition (config-driven rows + panels) |
+| `src/grafana/build.ts` | Script that compiles dashboard to `grafana/dashboard.json` |
+
+## Grafana dashboard
+
+Dashboard is defined as code in `src/grafana/` using the [Grafana Foundation SDK](https://grafana.com/docs/grafana/latest/observability-as-code/foundation-sdk) (TypeScript). Run `npm run grafana:build` at repo root to compile to `grafana/dashboard.json`. On import, Grafana prompts for **Prometheus** and **Loki** via `__inputs` (`DS_PROMETHEUS`, `DS_LOKI`) injected by `src/grafana/build.ts`. Panel datasources reference `${DS_PROMETHEUS}` / `${DS_LOKI}` (`DATASOURCE_VAR` in `src/grafana/panels.ts`, `LOKI_DS_VAR` in `src/grafana/dashboard.ts`). Template variables at runtime: **Chain**, **Vault**, etc. — not datasource pickers in the row.
+
+## Contracts read
+
+- **VaultHub** (global): `isVaultHealthy`, `healthShortfallShares`, `liabilityShares`, `totalMintingCapacityShares`, `isReportFresh`, `withdrawableValue`, `totalValue`
+- **stETH** (global): `getPooledEthByShares` (converts liability shares AND minting capacity shares to ETH)
+- **StakingVault** (per vault): `availableBalance`, `stagedBalance`, `nodeOperator`
+- **WithdrawalQueue** (auto-discovered from pool): `unfinalizedRequestsNumber`, `unfinalizedAssets`, `getLastRequestId`, `getLastFinalizedRequestId`
+- **Pool** (per vault): `WITHDRAWAL_QUEUE()`, `DASHBOARD()` (called once at startup for auto-discovery)
+- **Dashboard** (per vault): `accruedFee`, `pdgPolicy`
+- **PredepositGuarantee** (global): `nodeOperatorBalance`, `unlockedBalance`, `pendingActivations`
+
+## Metrics
+
+All values in ETH (not wei) unless the metric name indicates shares, IDs, or counters. Most gauges use labels `vault`, `vault_name`, `chain` (mainnet/hoodi). **Full list:** root `README.md` § Metrics.
+
+Highlighted PDG-related gauges:
+- `lido_vault_node_operator_fee_eth`: Undisbursed node operator fee in ETH from `Dashboard.accruedFee()`.
+- `lido_vault_pdg_total_eth`: Total PDG guarantee balance in ETH.
+- `lido_vault_pdg_locked_eth`: PDG guarantee currently locked by active predeposits.
+- `lido_vault_pdg_unlocked_eth`: PDG guarantee available for new predeposits.
+- `lido_vault_pdg_pending_activations`: Validators pending activation in PDG flow.
+- `lido_vault_pdg_policy`: Dashboard PDG policy enum (`0=STRICT`, `1=ALLOW_PROVE`, `2=ALLOW_DEPOSIT_AND_PROVE`).
+
+## Alerts (Discord)
+
+Only when `DISCORD_WEBHOOK_URL` is set. No recovery messages. Cooldown per alert type per vault (`ALERT_COOLDOWN_MIN`, default 30 min). Severities: warning (yellow), critical (red). Implemented in `src/index.js` + `src/notifications/discord.js`.
+
+- **Inactive ETH**: inactive buffer above `INACTIVE_ETH_THRESHOLD`.
+- **Withdrawal Requests Pending**: `unfinalizedRequests > 0` (shows pending ETH, vault balance, deficit context where applicable).
+- **Health — warning**: health factor below `HEALTH_WARNING_THRESHOLD` (and not in critical branch).
+- **Health — critical**: health factor below `HEALTH_CRITICAL_THRESHOLD`.
+- **Forced rebalance**: `healthShortfallShares > 0` and not `MAX_UINT256` sentinel.
+- **Utilization high**: utilization at or above `UTILIZATION_WARNING_THRESHOLD`.
+- **Vault unhealthy**: `!isHealthy` from VaultHub.
+
+## Metrics – special
+
+- `lido_vault_contracts_info` (labels: `vault_addr`, `pool_addr`, `wq_addr`, `dashboard_addr`, `vault_name`, `chain`): Set once at startup. Carries contract addresses for dashboard display.
+
+## Config
+
+Required env vars: `RPC_URL`, `CHAIN`, `VAULT_CONFIGS`. See `.env.example`.
+
+`CHAIN` accepts `mainnet` or `hoodi`. Chain ID and all Lido contract addresses (VaultHub, stETH, PDG) are resolved automatically from `src/networks.json` — no need to set them in the env.
+
+`VAULT_CONFIGS` is a JSON array. Each entry requires `vault` and `vault_name`. `pool` is optional. Vaults without a DeFi Wrapper pool skip WQ/dashboard **auto**-discovery; all VaultHub and StakingVault metrics still work. `withdrawalQueue` and `dashboard` can be set manually even without `pool`.
+
+Optional env (not in `.env.example`): e.g. `UTILIZATION_WARNING_THRESHOLD` (default `95`) — see `src/config.js` and root `README.md` § Configuration.
+
+## Network addresses
+
+Lido protocol addresses are defined in `src/networks.json` and loaded automatically based on `CHAIN`.
+
+### Hoodi
+
+- VaultHub: `0x4C9fFC325392090F789255b9948Ab1659b797964`
+- stETH: `0x3508A952176b3c15387C97BE809eaffB1982176a`
+- PDG: `0xa5F55f3402beA2B14AE15Dae1b6811457D43581d`
+- Vault (Stakely): `0xC821709e31a9Dc9de2d56e332b031ee841CAa420`
+- Pool: `0xC6B9509E24F9aE488eDd3dCD488559f85678C552`
+- Strategy: `0xbF4797De82787A60101e5e45CEc7f29b27d83D98`
+
+### Mainnet
+
+- VaultHub: `0x1d201BE093d847f6446530Efb0E8Fb426d176709`
+- stETH: `0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84`
+- PDG: `0xF4bF42c6D6A0E38825785048124DBAD6c9eaaac3`
+
+## ABI notes
+
+- Uses viem `parseAbi` with human-readable strings. If Lido upgrades a contract and changes a method signature, update the corresponding string in `src/abis.js`.
+- `vaultConnection()` struct is now read via raw ABI tuple in `vaultConnectionAbi` (not `parseAbi`). The `forcedRebalanceThresholdBP` is read from contract at each poll; env `FORCED_REBALANCE_THRESHOLD_BP` is only a fallback if the read fails.
+- WithdrawalQueue methods are `getLastRequestId` / `getLastFinalizedRequestId` (not `lastRequestId`).
+
+## Versioning
+
+Uses [Semantic Versioning](https://semver.org/) in `package.json`. The version is read at startup and exposed via `stvaults_watcher_info{version="..."}`.
+
+- **Patch** (`x.y.Z`): bug fixes, dependency bumps, config tweaks.
+- **Minor** (`x.Y.0`): new metrics, alerts, dashboard sections, env var changes, non-breaking features.
+- **Major** (`X.0.0`): breaking changes (renamed env vars, removed metrics, incompatible config format).
+
+Bump the version in `package.json` when shipping meaningful changes.
+
+## Living documentation
+
+This documentation MUST be kept up to date. When you make changes to the project:
+
+- **New file or module**: Add it to the "Key files" table above.
+- **New contract method**: Add it to "Contracts read".
+- **New metric or label**: Update "Metrics" / PDG highlights here and the full catalog in root `README.md` § Metrics.
+- **New alert type**: Update "Alerts" section.
+- **New env var**: Update "Config" section.
+- **New network/addresses**: Add to "Hoodi addresses" or create a new section.
+- **ABI gotchas**: Document in "ABI notes".
+- **Version bump**: Update version in `package.json` following semver rules above.
+- **Coding convention changes**: Update `.cursor/rules/coding-conventions.mdc`.
+
+Rules location: `.cursor/rules/project-overview.mdc` (this file) and `.cursor/rules/coding-conventions.mdc`.

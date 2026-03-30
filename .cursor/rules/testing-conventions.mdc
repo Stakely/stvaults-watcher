@@ -1,0 +1,25 @@
+---
+description: Testing conventions for stvaults-watcher
+globs: tests/**/*.*
+alwaysApply: false
+---
+
+# Testing conventions
+
+- **Runner**: Use Node's built-in test runner (`node:test`).
+- **Folder layout**: Keep all tests inside `tests/`, mirroring `src/` by domain (`tests/monitors`, `tests/metrics`, `tests/notifications`, `tests/grafana`).
+- **File naming**: Use `*.test.js` for JavaScript modules and `*.test.ts` only for Grafana TypeScript builders.
+- **No extra frameworks**: Do not add Jest, Mocha, Vitest, Sinon, or other test dependencies.
+- **Mocking strategy**:
+  - Use plain mocks/stubs for `client.readContract` in monitor tests.
+  - Override `process.env` in config tests and restore it after tests.
+  - Mock `globalThis.fetch` and `Date.now` for Discord tests.
+- **Assertions**: Use `node:assert/strict` for deterministic assertions.
+- **Coverage focus**: Prioritize exported pure functions first, then integration-style tests for server/metrics and contract polling orchestration.
+- **Grafana tests**:
+  - Run TypeScript tests with `tsx --test`.
+  - Validate both builder output (`buildDashboard`, panel helpers) and generated `grafana/dashboard.json` patch expectations.
+- **CI requirements**:
+  - Run `npm run test:all`.
+  - Build dashboard (`npm run grafana:build`) and ensure `grafana/dashboard.json` is in sync.
+  - Build Docker image to validate `Dockerfile`.

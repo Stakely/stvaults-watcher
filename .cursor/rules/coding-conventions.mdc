@@ -1,0 +1,21 @@
+---
+description: Coding conventions for stvaults-watcher
+globs: src/**/*.js
+alwaysApply: false
+---
+
+# Coding conventions
+
+- **Language**: JavaScript ESM (`"type": "module"` in package.json). No TypeScript in `src/**/*.js`. **`src/grafana/**` is TypeScript** (Grafana Foundation SDK); run `npm run grafana:build` for `grafana/dashboard.json`.
+- **Runtime**: Node.js 24+. Use native `fetch`, `crypto`, `http` - avoid unnecessary dependencies.
+- **On-chain reads**: Use viem `readContract` with human-readable ABIs from `src/abis.js`.
+- **Metrics**: prom-client Gauges/Counters. Labels: `vault`, `vault_name`, `chain`. Values in ETH (divide wei by 1e18), not raw wei.
+- **Logs**: Use `console.log('INFO  msg')` / `console.log('WARN  msg')` / `console.log('ERROR msg')`. Always use `console.log` (never `console.warn`/`console.error`) so all output goes to stdout. This ensures Docker labels all lines as `stream=stdout` and Loki can detect the level reliably.
+- **Comments**: Only for non-obvious intent. English for code (variables, functions, comments). User-facing messages (Discord alerts) in English.
+- **Config**: All configuration via env vars loaded in `src/config.js`. Required vars throw on missing. Optional vars have defaults.
+- **Error handling**: WithdrawalQueue reads wrapped in try/catch (contract may revert when queue is empty). Individual Discord alert sends wrapped in `.catch()` to not break the poll loop.
+- **No write operations**: This watcher is read-only. Never send transactions.
+
+## Living documentation
+
+When conventions change, update this file and `.cursor/rules/project-overview.mdc` accordingly. These rules must always reflect the current state of the project.
