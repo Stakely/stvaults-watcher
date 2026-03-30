@@ -8,7 +8,7 @@
 Monitoring watcher for [Lido V3](https://docs.lido.fi) stVaults with DeFi Wrapper pools. Reads on-chain data via [viem](https://viem.sh), exposes Prometheus metrics, and sends Discord alerts for health and withdrawal events.
 
 <p align="center">
-  <img src="grafana/preview.png" alt="Grafana Dashboard" width="900" />
+  <img src="static/header.png" alt="Grafana Dashboard" width="900" />
 </p>
 
 ## Features
