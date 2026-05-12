@@ -1,6 +1,6 @@
 {
   "name": "stvaults-watcher",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Monitor for Lido stVaults. Prometheus metrics and Discord alerts",
   "type": "module",
   "main": "src/index.js",

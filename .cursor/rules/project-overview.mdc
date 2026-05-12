@@ -20,7 +20,7 @@ Node.js 24 ESM app that monitors Lido V3 stVaults with DeFi Wrapper pools. Runs 
 | `src/config.js` | Loads and validates env vars; resolves network constants from `networks.json` |
 | `src/networks.json` | Per-network constants: chainId, explorerUrl, Lido contract addresses (vaultHub, stEth, pdg) |
 | `src/chain.js` | Creates viem `publicClient` |
-| `src/abis.js` | Human-readable ABIs (one-liner per method) for VaultHub, StakingVault, WithdrawalQueue, Pool, stETH |
+| `src/abis.js` | Human-readable ABIs (one-liner per method) for VaultHub, StakingVault, WithdrawalQueue, Pool, stETH, PDG. JSON ABI with named tuple components for `vaultConnection` and `LazyOracle.vaultQuarantine`. |
 | `src/monitors/vaultMonitor.js` | Orchestrator: reads all contract data, updates metrics, returns snapshots for alerting |
 | `src/monitors/healthMonitor.js` | Health factor and utilization ratio computation |
 | `src/monitors/efficiencyMonitor.js` | Inactive ETH detection (available - staged) |
@@ -38,13 +38,23 @@ Dashboard is defined as code in `src/grafana/` using the [Grafana Foundation SDK
 
 ## Contracts read
 
-- **VaultHub** (global): `isVaultHealthy`, `healthShortfallShares`, `liabilityShares`, `totalMintingCapacityShares`, `isReportFresh`, `withdrawableValue`, `totalValue`
-- **stETH** (global): `getPooledEthByShares` (converts liability shares AND minting capacity shares to ETH)
+- **VaultHub** (global): `healthShortfallShares`, `liabilityShares`, `totalMintingCapacityShares`, `isReportFresh`, `withdrawableValue`, `totalValue`, `vaultConnection`. `isVaultHealthy` is **no longer read**; `is_healthy` is derived from the locally computed health factor (`>= 100`) — see "Health factor parity" below.
+- **stETH** (global): `getPooledEthBySharesRoundUp` for the liability (matches lido-cli) and `getPooledEthByShares` for the minting capacity.
 - **StakingVault** (per vault): `availableBalance`, `stagedBalance`, `nodeOperator`
 - **WithdrawalQueue** (auto-discovered from pool): `unfinalizedRequestsNumber`, `unfinalizedAssets`, `getLastRequestId`, `getLastFinalizedRequestId`
 - **Pool** (per vault): `WITHDRAWAL_QUEUE()`, `DASHBOARD()` (called once at startup for auto-discovery)
 - **Dashboard** (per vault): `accruedFee`, `pdgPolicy`
 - **PredepositGuarantee** (global): `nodeOperatorBalance`, `unlockedBalance`, `pendingActivations`
+- **LazyOracle** (global): `vaultQuarantine` — surfaces quarantine state of CL capital (active flag, pending value increase, end timestamp).
+
+## Health factor parity
+
+`src/monitors/healthMonitor.js` is a faithful port of
+[`utils/health/calculate-health.ts`](https://github.com/lidofinance/lido-staking-vault-cli/blob/main/utils/health/calculate-health.ts)
+in `lido-staking-vault-cli`. All arithmetic is BigInt with 1e18 precision so
+the watcher's `lido_vault_health_factor` agrees with `vo r health` bit-for-bit.
+The `disconnected` flag (from `vaultConnection.owner === 0x0 || vaultIndex == 0`)
+and the quarantine metrics surface the same "rare conditions" the CLI checks.
 
 ## Metrics
 
@@ -57,6 +67,12 @@ Highlighted PDG-related gauges:
 - `lido_vault_pdg_unlocked_eth`: PDG guarantee available for new predeposits.
 - `lido_vault_pdg_pending_activations`: Validators pending activation in PDG flow.
 - `lido_vault_pdg_policy`: Dashboard PDG policy enum (`0=STRICT`, `1=ALLOW_PROVE`, `2=ALLOW_DEPOSIT_AND_PROVE`).
+
+Highlighted lido-cli parity gauges (added in 1.1.0):
+- `lido_vault_disconnected`: `1` when the vault is not registered in VaultHub (`owner=0x0` or `vaultIndex=0`).
+- `lido_vault_quarantine_active`: `1` when `LazyOracle.vaultQuarantine.isActive`.
+- `lido_vault_quarantine_pending_value_eth`: ETH that joins `total_value` once the quarantine ends.
+- `lido_vault_quarantine_end_timestamp`: Unix seconds for the quarantine release.
 
 ## Alerts (Discord)
 
@@ -93,6 +109,7 @@ Lido protocol addresses are defined in `src/networks.json` and loaded automatica
 - VaultHub: `0x4C9fFC325392090F789255b9948Ab1659b797964`
 - stETH: `0x3508A952176b3c15387C97BE809eaffB1982176a`
 - PDG: `0xa5F55f3402beA2B14AE15Dae1b6811457D43581d`
+- LazyOracle: `0xf41491C79C30e8f4862d3F4A5b790171adB8e04A`
 - Vault (Stakely): `0xC821709e31a9Dc9de2d56e332b031ee841CAa420`
 - Pool: `0xC6B9509E24F9aE488eDd3dCD488559f85678C552`
 - Strategy: `0xbF4797De82787A60101e5e45CEc7f29b27d83D98`
@@ -102,6 +119,7 @@ Lido protocol addresses are defined in `src/networks.json` and loaded automatica
 - VaultHub: `0x1d201BE093d847f6446530Efb0E8Fb426d176709`
 - stETH: `0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84`
 - PDG: `0xF4bF42c6D6A0E38825785048124DBAD6c9eaaac3`
+- LazyOracle: `0x5DB427080200c235F2Ae8Cd17A7be87921f7AD6c`
 
 ## ABI notes
 

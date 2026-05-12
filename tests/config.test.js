@@ -35,6 +35,11 @@ test("loadConfig parses valid minimum configuration and defaults", () => {
   assert.equal(cfg.healthWarningThreshold, 107);
   assert.equal(cfg.healthCriticalThreshold, 102);
   assert.equal(cfg.vaults.length, 1);
+  // Network-resolved contract addresses
+  assert.equal(cfg.vaultHubAddress, "0x1d201BE093d847f6446530Efb0E8Fb426d176709");
+  assert.equal(cfg.stEthAddress, "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84");
+  assert.equal(cfg.pdgAddress, "0xF4bF42c6D6A0E38825785048124DBAD6c9eaaac3");
+  assert.equal(cfg.lazyOracleAddress, "0x5DB427080200c235F2Ae8Cd17A7be87921f7AD6c");
 });
 
 test("loadConfig throws when required env var is missing", () => {

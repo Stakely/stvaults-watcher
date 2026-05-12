@@ -34,6 +34,10 @@ test("buildDashboard includes key panels by title", () => {
     "Withdrawal deficit",
     "Contracts",
     "Watcher logs",
+    "Connection",
+    "Quarantine",
+    "Quarantine pending value",
+    "Quarantine ends",
   ]) {
     assert.equal(titles.includes(title), true, `missing panel: ${title}`);
   }

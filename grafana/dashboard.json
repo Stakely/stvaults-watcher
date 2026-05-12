@@ -256,7 +256,7 @@
           "legendFormat": "{{vault_name}}"
         }
       ],
-      "description": "Whether the vault is considered healthy by VaultHub (isVaultHealthy on-chain).",
+      "description": "Derived from the locally computed health factor (>= 100), matching lido-staking-vault-cli `vo r health`.",
       "gridPos": {
         "x": 8,
         "y": 1,
@@ -1478,6 +1478,259 @@
       }
     },
     {
+      "type": "stat",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "Connection",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "graphMode": "none",
+        "colorMode": "background_solid",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "percentChangeColorMode": "standard",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "lido_vault_disconnected{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "description": "1 if the vault is disconnected from VaultHub (owner=0x0 or vaultIndex=0). Health factor is meaningless while disconnected.",
+      "gridPos": {
+        "x": 0,
+        "y": 35,
+        "w": 6,
+        "h": 5
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "CONNECTED",
+                  "color": "#73BF69",
+                  "index": 0
+                },
+                "1": {
+                  "text": "DISCONNECTED",
+                  "color": "#F2495C",
+                  "index": 1
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "#73BF69"
+              },
+              {
+                "value": 1,
+                "color": "#F2495C"
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "type": "stat",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "Quarantine",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "graphMode": "none",
+        "colorMode": "background_solid",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "percentChangeColorMode": "standard",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "lido_vault_quarantine_active{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "description": "LazyOracle.vaultQuarantine.isActive. While ACTIVE, part of the CL capital is frozen and total_value does not include the pending increase.",
+      "gridPos": {
+        "x": 6,
+        "y": 35,
+        "w": 6,
+        "h": 5
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "INACTIVE",
+                  "color": "#73BF69",
+                  "index": 0
+                },
+                "1": {
+                  "text": "ACTIVE",
+                  "color": "#FF780A",
+                  "index": 1
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "#73BF69"
+              },
+              {
+                "value": 1,
+                "color": "#FF780A"
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "type": "stat",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "Quarantine pending value",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "graphMode": "area",
+        "colorMode": "value",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "percentChangeColorMode": "standard",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "lido_vault_quarantine_pending_value_eth{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "eth",
+          "decimals": 4,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "#5794F2"
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "description": "ETH that will be added to total_value once the quarantine ends.",
+      "gridPos": {
+        "x": 12,
+        "y": 35,
+        "w": 6,
+        "h": 5
+      }
+    },
+    {
+      "type": "stat",
+      "transparent": false,
+      "repeatDirection": "h",
+      "title": "Quarantine ends",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "options": {
+        "graphMode": "none",
+        "colorMode": "none",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "percentChangeColorMode": "standard",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "expr": "lido_vault_quarantine_end_timestamp{chain=~\"$chain\",vault_name=~\"$vault_name\"} * 1000",
+          "legendFormat": "{{vault_name}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "dateTimeFromNow"
+        },
+        "overrides": []
+      },
+      "description": "Wall-clock time when LazyOracle releases the quarantine. Shows '0' when inactive.",
+      "gridPos": {
+        "x": 18,
+        "y": 35,
+        "w": 6,
+        "h": 5
+      }
+    },
+    {
       "type": "timeseries",
       "transparent": false,
       "repeatDirection": "h",
@@ -1538,7 +1791,7 @@
       ],
       "gridPos": {
         "x": 0,
-        "y": 35,
+        "y": 40,
         "w": 12,
         "h": 8
       }
@@ -1591,7 +1844,7 @@
       ],
       "gridPos": {
         "x": 12,
-        "y": 35,
+        "y": 40,
         "w": 12,
         "h": 8
       }
@@ -1604,7 +1857,7 @@
       "title": "🪙 stETH liability",
       "gridPos": {
         "x": 0,
-        "y": 43,
+        "y": 48,
         "h": 1,
         "w": 24
       }
@@ -1660,7 +1913,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 44,
+        "y": 49,
         "w": 8,
         "h": 5
       }
@@ -1716,7 +1969,7 @@
       },
       "gridPos": {
         "x": 8,
-        "y": 44,
+        "y": 49,
         "w": 8,
         "h": 5
       }
@@ -1772,7 +2025,7 @@
       },
       "gridPos": {
         "x": 16,
-        "y": 44,
+        "y": 49,
         "w": 8,
         "h": 5
       }
@@ -1785,7 +2038,7 @@
       "title": "📤 Withdrawal queue",
       "gridPos": {
         "x": 0,
-        "y": 49,
+        "y": 54,
         "h": 1,
         "w": 24
       }
@@ -1848,7 +2101,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 50,
+        "y": 55,
         "w": 6,
         "h": 5
       }
@@ -1904,7 +2157,7 @@
       },
       "gridPos": {
         "x": 6,
-        "y": 50,
+        "y": 55,
         "w": 6,
         "h": 5
       }
@@ -1947,7 +2200,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 50,
+        "y": 55,
         "w": 6,
         "h": 5
       }
@@ -1990,7 +2243,7 @@
       },
       "gridPos": {
         "x": 18,
-        "y": 50,
+        "y": 55,
         "w": 6,
         "h": 5
       }
@@ -2023,7 +2276,7 @@
       ],
       "gridPos": {
         "x": 0,
-        "y": 55,
+        "y": 60,
         "w": 24,
         "h": 8
       }
@@ -2036,7 +2289,7 @@
       "title": "🛡️ PDG (Predeposit Guarantee)",
       "gridPos": {
         "x": 0,
-        "y": 63,
+        "y": 68,
         "h": 1,
         "w": 24
       }
@@ -2122,7 +2375,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 64,
+        "y": 69,
         "w": 5,
         "h": 5
       }
@@ -2179,7 +2432,7 @@
       "description": "Total guarantee balance in PDG for this vault node operator.",
       "gridPos": {
         "x": 5,
-        "y": 64,
+        "y": 69,
         "w": 5,
         "h": 5
       }
@@ -2236,7 +2489,7 @@
       "description": "Guarantee currently locked by active predeposits.",
       "gridPos": {
         "x": 10,
-        "y": 64,
+        "y": 69,
         "w": 5,
         "h": 5
       }
@@ -2297,7 +2550,7 @@
       "description": "Guarantee available for new predeposits (total - locked).",
       "gridPos": {
         "x": 15,
-        "y": 64,
+        "y": 69,
         "w": 5,
         "h": 5
       }
@@ -2361,7 +2614,7 @@
       },
       "gridPos": {
         "x": 20,
-        "y": 64,
+        "y": 69,
         "w": 4,
         "h": 5
       }
@@ -2429,7 +2682,7 @@
       ],
       "gridPos": {
         "x": 0,
-        "y": 69,
+        "y": 74,
         "w": 24,
         "h": 8
       }
@@ -2442,7 +2695,7 @@
       "title": "🤖 Watcher",
       "gridPos": {
         "x": 0,
-        "y": 77,
+        "y": 82,
         "h": 1,
         "w": 24
       }
@@ -2506,7 +2759,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 78,
+        "y": 83,
         "w": 6,
         "h": 5
       }
@@ -2549,7 +2802,7 @@
       },
       "gridPos": {
         "x": 6,
-        "y": 78,
+        "y": 83,
         "w": 6,
         "h": 5
       }
@@ -2613,7 +2866,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 78,
+        "y": 83,
         "w": 6,
         "h": 5
       }
@@ -2626,7 +2879,7 @@
       "title": "📜 Logs",
       "gridPos": {
         "x": 0,
-        "y": 83,
+        "y": 88,
         "h": 1,
         "w": 24
       }
@@ -2661,7 +2914,7 @@
       ],
       "gridPos": {
         "x": 0,
-        "y": 84,
+        "y": 89,
         "w": 24,
         "h": 12
       }

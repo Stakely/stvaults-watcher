@@ -119,6 +119,37 @@ export const vaultReportFresh = new Gauge({
   registers: [register],
 });
 
+export const vaultDisconnected = new Gauge({
+  name: 'lido_vault_disconnected',
+  help: '1 if the vault is disconnected from VaultHub (owner=0x0 or vaultIndex=0), 0 otherwise',
+  labelNames: defaultLabels,
+  registers: [register],
+});
+
+// Quarantine (from LazyOracle.vaultQuarantine). When active, part of the vault
+// CL capital is frozen; pendingTotalValueIncrease will be added to totalValue
+// after endTimestamp.
+export const vaultQuarantineActive = new Gauge({
+  name: 'lido_vault_quarantine_active',
+  help: '1 if vault CL capital is in quarantine, 0 otherwise',
+  labelNames: defaultLabels,
+  registers: [register],
+});
+
+export const vaultQuarantinePendingValueEth = new Gauge({
+  name: 'lido_vault_quarantine_pending_value_eth',
+  help: 'ETH that will be added to totalValue once the quarantine ends',
+  labelNames: defaultLabels,
+  registers: [register],
+});
+
+export const vaultQuarantineEndTimestamp = new Gauge({
+  name: 'lido_vault_quarantine_end_timestamp',
+  help: 'Unix timestamp when the quarantine ends (0 when inactive)',
+  labelNames: defaultLabels,
+  registers: [register],
+});
+
 // Vault - connection params (from VaultHub.vaultConnection)
 export const vaultForcedRebalanceThreshold = new Gauge({
   name: 'lido_vault_forced_rebalance_threshold',

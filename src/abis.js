@@ -61,7 +61,27 @@ export const dashboardAbi = parseAbi([
 
 export const stEthAbi = parseAbi([
   'function getPooledEthByShares(uint256 shares) view returns (uint256)',
+  'function getPooledEthBySharesRoundUp(uint256 shares) view returns (uint256)',
 ]);
+
+// LazyOracle.vaultQuarantine returns a named tuple; raw JSON ABI keeps field names.
+export const lazyOracleAbi = [{
+  name: 'vaultQuarantine',
+  type: 'function',
+  stateMutability: 'view',
+  inputs: [{ name: '_vault', type: 'address' }],
+  outputs: [{
+    name: '',
+    type: 'tuple',
+    components: [
+      { name: 'isActive', type: 'bool' },
+      { name: 'pendingTotalValueIncrease', type: 'uint256' },
+      { name: 'startTimestamp', type: 'uint256' },
+      { name: 'endTimestamp', type: 'uint256' },
+      { name: 'totalValueRemainder', type: 'uint256' },
+    ],
+  }],
+}];
 
 export const pdgAbi = parseAbi([
   'function nodeOperatorBalance(address _nodeOperator) view returns (uint128 total, uint128 locked)',

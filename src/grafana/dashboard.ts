@@ -47,6 +47,17 @@ const boolMappings = [
 const freshMappings = [
   { type: "value" as const, options: { "0": { text: "STALE", color: BLUE, index: 0 }, "1": { text: "FRESH", color: GREEN, index: 1 } } },
 ];
+const connectedMappings = [
+  { type: "value" as const, options: { "0": { text: "CONNECTED", color: GREEN, index: 0 }, "1": { text: "DISCONNECTED", color: RED, index: 1 } } },
+];
+const quarantineMappings = [
+  { type: "value" as const, options: { "0": { text: "INACTIVE", color: GREEN, index: 0 }, "1": { text: "ACTIVE", color: ORANGE, index: 1 } } },
+];
+
+// Color flips: disconnected/quarantine show RED/ORANGE when value is 1 (bad),
+// GREEN when 0. We pre-build the threshold lists here for clarity.
+const disconnectedThresh = [{ value: null as any, color: GREEN }, { value: 1, color: RED }];
+const quarantineThresh   = [{ value: null as any, color: GREEN }, { value: 1, color: ORANGE }];
 const pdgPolicyMappings = [
   {
     type: "value" as const,
@@ -145,7 +156,7 @@ export function buildDashboard(): object {
     .withPanel(statPanel({
       title: "Vault healthy",
       expr: q("lido_vault_is_healthy"),
-      description: "Whether the vault is considered healthy by VaultHub (isVaultHealthy on-chain).",
+      description: "Derived from the locally computed health factor (>= 100), matching lido-staking-vault-cli `vo r health`.",
       colorMode: "background_solid", graphMode: "none",
       thresholdSteps: booleanGreen,
       valueMappings: boolMappings as any,
@@ -331,6 +342,45 @@ export function buildDashboard(): object {
       gridPos: pos(21, y, 3, G),
     }));
   y += G;
+
+  // Connection + quarantine state (rare conditions surfaced by lido-cli).
+  builder
+    .withPanel(statPanel({
+      title: "Connection",
+      expr: q("lido_vault_disconnected"),
+      description: "1 if the vault is disconnected from VaultHub (owner=0x0 or vaultIndex=0). Health factor is meaningless while disconnected.",
+      colorMode: "background_solid", graphMode: "none",
+      thresholdSteps: disconnectedThresh,
+      valueMappings: connectedMappings as any,
+      gridPos: pos(0, y, 6, S),
+    }))
+    .withPanel(statPanel({
+      title: "Quarantine",
+      expr: q("lido_vault_quarantine_active"),
+      description: "LazyOracle.vaultQuarantine.isActive. While ACTIVE, part of the CL capital is frozen and total_value does not include the pending increase.",
+      colorMode: "background_solid", graphMode: "none",
+      thresholdSteps: quarantineThresh,
+      valueMappings: quarantineMappings as any,
+      gridPos: pos(6, y, 6, S),
+    }))
+    .withPanel(statPanel({
+      title: "Quarantine pending value",
+      expr: q("lido_vault_quarantine_pending_value_eth"),
+      description: "ETH that will be added to total_value once the quarantine ends.",
+      unit: "eth", decimals: 4,
+      colorMode: "value", graphMode: "area",
+      thresholdSteps: ethThresholds,
+      gridPos: pos(12, y, 6, S),
+    }))
+    .withPanel(statPanel({
+      title: "Quarantine ends",
+      expr: `${q("lido_vault_quarantine_end_timestamp")} * 1000`,
+      description: "Wall-clock time when LazyOracle releases the quarantine. Shows '0' when inactive.",
+      unit: "dateTimeFromNow",
+      colorMode: "none", graphMode: "none",
+      gridPos: pos(18, y, 6, S),
+    }));
+  y += S;
 
   builder
     .withPanel(timeseriesPanel({

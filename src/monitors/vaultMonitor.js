@@ -7,8 +7,9 @@ import {
   dashboardAbi,
   stEthAbi,
   pdgAbi,
+  lazyOracleAbi,
 } from '../abis.js';
-import { computeHealthFactorPct, computeUtilizationRatioPct } from './healthMonitor.js';
+import { calculateHealth, computeUtilizationRatioPct } from './healthMonitor.js';
 import { computeInactiveEthWei } from './efficiencyMonitor.js';
 import {
   vaultTotalValueEth,
@@ -27,6 +28,10 @@ import {
   vaultHealthShortfallShares,
   vaultUtilizationRatio,
   vaultReportFresh,
+  vaultDisconnected,
+  vaultQuarantineActive,
+  vaultQuarantinePendingValueEth,
+  vaultQuarantineEndTimestamp,
   vaultForcedRebalanceThreshold,
   vaultReserveRatio,
   vaultStethLiabilityShares,
@@ -41,6 +46,7 @@ import {
 } from '../metrics/definitions.js';
 
 const WEI_PER_ETH = 1e18;
+const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 function weiToEth(wei) {
   return Number(wei) / WEI_PER_ETH;
@@ -76,6 +82,12 @@ export async function resolvePoolAddresses(client, poolAddress, vaultConfig) {
 
 /**
  * Fetch all vault data and update metrics. Returns snapshot per vault for alerting.
+ *
+ * Health factor matches `lido-staking-vault-cli vo r health`: uses
+ * `getPooledEthBySharesRoundUp` for the liability and computes the ratio in
+ * BigInt with 1e18 precision via `calculateHealth`. `isHealthy` is derived
+ * from `healthRatio >= 100` instead of `VaultHub.isVaultHealthy()`.
+ *
  * @param {import('viem').PublicClient} client
  * @param {import('../config.js').Config} config
  * @param {Array<{ vault: string, pool: string, vault_name: string, withdrawalQueue: string, dashboard: string }>} vaultConfigs - with withdrawalQueue/dashboard resolved
@@ -85,6 +97,7 @@ export async function resolvePoolAddresses(client, poolAddress, vaultConfig) {
 export async function pollVaults(client, config, vaultConfigs, stEthAddress, vaultHubAddress) {
   const chain = config.chain;
   const pdgAddress = config.pdgAddress;
+  const lazyOracleAddress = config.lazyOracleAddress;
   const results = [];
 
   for (const vc of vaultConfigs) {
@@ -92,10 +105,9 @@ export async function pollVaults(client, config, vaultConfigs, stEthAddress, vau
     const labels = vaultLabels(vault, vaultName, chain);
 
     try {
-      // VaultHub multicall
+      // VaultHub multicall (no isVaultHealthy: derived from the formula below)
       const [
         totalValue,
-        isHealthy,
         healthShortfallShares,
         liabilityShares,
         mintingCapacityShares,
@@ -106,12 +118,6 @@ export async function pollVaults(client, config, vaultConfigs, stEthAddress, vau
           address: vaultHubAddress,
           abi: vaultHubAbi,
           functionName: 'totalValue',
-          args: [vault],
-        }),
-        client.readContract({
-          address: vaultHubAddress,
-          abi: vaultHubAbi,
-          functionName: 'isVaultHealthy',
           args: [vault],
         }),
         client.readContract({
@@ -146,9 +152,10 @@ export async function pollVaults(client, config, vaultConfigs, stEthAddress, vau
         }),
       ]);
 
-      // VaultConnection (read real thresholds from contract)
+      // VaultConnection (real thresholds + disconnected detection)
       let forcedRebalanceThresholdBP = config.forcedRebalanceThresholdBP ?? 1000;
       let reserveRatioBP = 0;
+      let disconnected = false;
       try {
         const conn = await client.readContract({
           address: vaultHubAddress,
@@ -156,12 +163,13 @@ export async function pollVaults(client, config, vaultConfigs, stEthAddress, vau
           functionName: 'vaultConnection',
           args: [vault],
         });
+        disconnected = conn.owner === ZERO_ADDRESS || conn.vaultIndex === 0n;
         if (conn.forcedRebalanceThresholdBP > 0) {
           forcedRebalanceThresholdBP = conn.forcedRebalanceThresholdBP;
         }
         reserveRatioBP = conn.reserveRatioBP ?? 0;
       } catch (e) {
-        console.warn(`vaultConnection read failed for ${vaultName}, using config fallback (${forcedRebalanceThresholdBP}BP):`, e?.shortMessage ?? e?.message);
+        console.log(`WARN  vaultConnection read failed for ${vaultName}, using config fallback (${forcedRebalanceThresholdBP}BP): ${e?.shortMessage ?? e?.message ?? e}`);
       }
 
       // StakingVault
@@ -183,32 +191,53 @@ export async function pollVaults(client, config, vaultConfigs, stEthAddress, vau
         }),
       ]);
 
-      // Convert shares to ETH via stETH
-      let liabilityEthWei = 0n;
+      // Shares → stETH conversion. Liability uses RoundUp to match lido-cli's
+      // calculateHealth input (conservative: liability looks 1 wei bigger,
+      // HF slightly lower). Minting capacity stays on the regular method.
+      let liabilityStethWei = 0n;
       let mintingCapacityEthWei = 0n;
       if (stEthAddress) {
-        const sharesToConvert = [];
-        if (liabilityShares > 0n) sharesToConvert.push(liabilityShares);
-        if (mintingCapacityShares > 0n) sharesToConvert.push(mintingCapacityShares);
-
-        if (sharesToConvert.length > 0) {
-          const results = await Promise.all(
-            sharesToConvert.map((s) =>
-              client.readContract({
-                address: stEthAddress,
-                abi: stEthAbi,
-                functionName: 'getPooledEthByShares',
-                args: [s],
-              })
-            )
-          );
-          let idx = 0;
-          if (liabilityShares > 0n) liabilityEthWei = results[idx++];
-          if (mintingCapacityShares > 0n) mintingCapacityEthWei = results[idx++];
+        const calls = [];
+        if (liabilityShares > 0n) {
+          calls.push({
+            kind: 'liability',
+            promise: client.readContract({
+              address: stEthAddress,
+              abi: stEthAbi,
+              functionName: 'getPooledEthBySharesRoundUp',
+              args: [liabilityShares],
+            }),
+          });
+        }
+        if (mintingCapacityShares > 0n) {
+          calls.push({
+            kind: 'capacity',
+            promise: client.readContract({
+              address: stEthAddress,
+              abi: stEthAbi,
+              functionName: 'getPooledEthByShares',
+              args: [mintingCapacityShares],
+            }),
+          });
+        }
+        if (calls.length > 0) {
+          const settled = await Promise.all(calls.map((c) => c.promise));
+          for (let i = 0; i < calls.length; i++) {
+            if (calls[i].kind === 'liability') liabilityStethWei = settled[i];
+            else mintingCapacityEthWei = settled[i];
+          }
         }
       }
 
-      const healthFactorPct = computeHealthFactorPct(totalValue, forcedRebalanceThresholdBP, liabilityEthWei);
+      // Health (lido-cli parity) and utilization
+      const { healthRatio, isHealthy } = calculateHealth({
+        totalValue,
+        liabilityStethWei,
+        forcedRebalanceThresholdBP,
+      });
+      const healthFactorPct = Number.isFinite(healthRatio)
+        ? Math.round(healthRatio * 100) / 100
+        : healthRatio;
       const utilizationPct = computeUtilizationRatioPct(liabilityShares, mintingCapacityShares);
       const inactiveEthWei = computeInactiveEthWei(availableBalance, stagedBalance);
 
@@ -243,9 +272,8 @@ export async function pollVaults(client, config, vaultConfigs, stEthAddress, vau
           ]);
         } catch (wqErr) {
           // Contract can revert when queue has no requests or different interface; use zeros
-          console.warn(
-            `WithdrawalQueue read failed for ${vaultName} (${withdrawalQueue}), using zeros:`,
-            wqErr?.shortMessage ?? wqErr?.message ?? wqErr
+          console.log(
+            `WARN  WithdrawalQueue read failed for ${vaultName} (${withdrawalQueue}), using zeros: ${wqErr?.shortMessage ?? wqErr?.message ?? wqErr}`
           );
         }
       }
@@ -267,9 +295,8 @@ export async function pollVaults(client, config, vaultConfigs, stEthAddress, vau
             }),
           ]);
         } catch (feeErr) {
-          console.warn(
-            `dashboard read failed for ${vaultName} (${dashboard}), using defaults:`,
-            feeErr?.shortMessage ?? feeErr?.message ?? feeErr
+          console.log(
+            `WARN  dashboard read failed for ${vaultName} (${dashboard}), using defaults: ${feeErr?.shortMessage ?? feeErr?.message ?? feeErr}`
           );
         }
       }
@@ -278,7 +305,6 @@ export async function pollVaults(client, config, vaultConfigs, stEthAddress, vau
       let pdgLockedWei = 0n;
       let pdgUnlockedWei = 0n;
       let pdgPendingActivations = 0n;
-      const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
       if (nodeOperator === ZERO_ADDRESS) {
         console.log(`WARN  PDG reads skipped for ${vaultName}: nodeOperator() returned zero address`);
       } else if (pdgAddress) {
@@ -308,9 +334,30 @@ export async function pollVaults(client, config, vaultConfigs, stEthAddress, vau
           pdgUnlockedWei = unlockedBalance;
           pdgPendingActivations = pendingActivations;
         } catch (pdgErr) {
-          console.warn(
-            `PDG read failed for ${vaultName} (${pdgAddress}), using zeros:`,
-            pdgErr?.shortMessage ?? pdgErr?.message ?? pdgErr
+          console.log(
+            `WARN  PDG read failed for ${vaultName} (${pdgAddress}), using zeros: ${pdgErr?.shortMessage ?? pdgErr?.message ?? pdgErr}`
+          );
+        }
+      }
+
+      // Quarantine (LazyOracle). Warns when part of CL capital is frozen.
+      let quarantineIsActive = false;
+      let quarantinePendingValueWei = 0n;
+      let quarantineEndTimestamp = 0n;
+      if (lazyOracleAddress) {
+        try {
+          const q = await client.readContract({
+            address: lazyOracleAddress,
+            abi: lazyOracleAbi,
+            functionName: 'vaultQuarantine',
+            args: [vault],
+          });
+          quarantineIsActive = Boolean(q.isActive);
+          quarantinePendingValueWei = q.pendingTotalValueIncrease ?? 0n;
+          quarantineEndTimestamp = q.endTimestamp ?? 0n;
+        } catch (qErr) {
+          console.log(
+            `WARN  LazyOracle quarantine read failed for ${vaultName} (${lazyOracleAddress}): ${qErr?.shortMessage ?? qErr?.message ?? qErr}`
           );
         }
       }
@@ -327,15 +374,19 @@ export async function pollVaults(client, config, vaultConfigs, stEthAddress, vau
       vaultPdgUnlockedEth.set(labels, weiToEth(pdgUnlockedWei));
       vaultPdgPendingActivations.set(labels, Number(pdgPendingActivations));
       vaultPdgPolicy.set(labels, Number(pdgPolicy));
-      vaultHealthFactor.set(labels, healthFactorPct);
+      vaultHealthFactor.set(labels, Number.isFinite(healthFactorPct) ? healthFactorPct : 0);
       vaultIsHealthy.set(labels, isHealthy ? 1 : 0);
       vaultHealthShortfallShares.set(labels, healthShortfallShares === MAX_UINT256 ? 0 : Number(healthShortfallShares));
       vaultUtilizationRatio.set(labels, utilizationPct);
       vaultReportFresh.set(labels, reportFresh ? 1 : 0);
+      vaultDisconnected.set(labels, disconnected ? 1 : 0);
+      vaultQuarantineActive.set(labels, quarantineIsActive ? 1 : 0);
+      vaultQuarantinePendingValueEth.set(labels, weiToEth(quarantinePendingValueWei));
+      vaultQuarantineEndTimestamp.set(labels, Number(quarantineEndTimestamp));
       vaultForcedRebalanceThreshold.set(labels, forcedRebalanceThresholdBP / 100);
       vaultReserveRatio.set(labels, reserveRatioBP / 100);
       vaultStethLiabilityShares.set(labels, Number(liabilityShares));
-      vaultStethLiabilityEth.set(labels, weiToEth(liabilityEthWei));
+      vaultStethLiabilityEth.set(labels, weiToEth(liabilityStethWei));
       vaultMintingCapacityShares.set(labels, Number(mintingCapacityShares));
       vaultMintingCapacityEth.set(labels, weiToEth(mintingCapacityEthWei));
       wqUnfinalizedRequests.set(labels, Number(unfinalizedRequests));
@@ -364,8 +415,12 @@ export async function pollVaults(client, config, vaultConfigs, stEthAddress, vau
         healthFactorPct,
         utilizationPct,
         reportFresh,
+        disconnected,
+        quarantineIsActive,
+        quarantinePendingValueWei,
+        quarantineEndTimestamp,
         liabilityShares,
-        liabilityEthWei,
+        liabilityStethWei,
         mintingCapacityShares,
         unfinalizedRequests,
         unfinalizedAssets,
@@ -373,7 +428,7 @@ export async function pollVaults(client, config, vaultConfigs, stEthAddress, vau
         lastFinalizedId,
       });
     } catch (err) {
-      console.error(`Poll error for vault ${vault} (${vaultName}):`, err);
+      console.log(`ERROR Poll error for vault ${vault} (${vaultName}): ${err?.message ?? err}`);
       throw err;
     }
   }
