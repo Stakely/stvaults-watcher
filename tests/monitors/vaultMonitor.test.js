@@ -454,3 +454,65 @@ test("PDG metrics default to zero when pdgAddress is not configured", async () =
   assert.equal(snap.pdgUnlockedWei, 0n);
   assert.equal(snap.pdgPendingActivations, 0n);
 });
+
+test("lido_vault_health_factor exposes +Inf (not 0) when liability is zero", async () => {
+  // Regression: a healthy vault with no minted stETH must report +Inf so the
+  // Grafana dashboard can show "∞" via its existing clamp_max+valueMapping logic.
+  // Coercing Infinity to 0 would flip the panel into red ("critical") while
+  // is_healthy=1 — a contradictory and misleading state.
+  const readContract = async (req) => {
+    switch (req.functionName) {
+      case "totalValue": return 50n * 10n ** 18n;
+      case "healthShortfallShares": return 0n;
+      case "liabilityShares": return 0n;
+      case "totalMintingCapacityShares": return 100n;
+      case "isReportFresh": return true;
+      case "withdrawableValue": return 50n * 10n ** 18n;
+      case "vaultConnection":
+        return { owner: ADDR_OWNER, vaultIndex: 1n, forcedRebalanceThresholdBP: 1000, reserveRatioBP: 0 };
+      case "availableBalance": return 0n;
+      case "stagedBalance": return 0n;
+      case "nodeOperator": return ADDR_NODE_OPERATOR;
+      case "accruedFee": return 0n;
+      case "pdgPolicy": return 0n;
+      case "getPooledEthByShares":
+      case "getPooledEthBySharesRoundUp":
+        return req.args[0] * 10n ** 18n;
+      case "nodeOperatorBalance": return [0n, 0n];
+      case "unlockedBalance": return 0n;
+      case "pendingActivations": return 0n;
+      case "unfinalizedRequestsNumber": return 0n;
+      case "unfinalizedAssets": return 0n;
+      case "getLastRequestId": return 0n;
+      case "getLastFinalizedRequestId": return 0n;
+      case "vaultQuarantine": return QUARANTINE_INACTIVE;
+      default: throw new Error(`unexpected functionName: ${req.functionName}`);
+    }
+  };
+
+  const snapshots = await pollVaults(
+    { readContract },
+    { chain: "mainnet", forcedRebalanceThresholdBP: 1000, pdgAddress: ADDR_PDG, lazyOracleAddress: ADDR_LAZY },
+    [{ vault: ADDR_VAULT, vault_name: "vault-no-debt", withdrawalQueue: ADDR_WQ, dashboard: ADDR_DASH }],
+    ADDR_STETH,
+    ADDR_HUB
+  );
+
+  // Snapshot: healthy vault with infinite health factor
+  assert.equal(snapshots[0].healthFactorPct, Infinity);
+  assert.equal(snapshots[0].isHealthy, true);
+
+  // Prometheus output must emit +Inf (the prom-client representation of Infinity),
+  // never 0. The dashboard relies on this to render "∞" in the Health factor gauge.
+  const metrics = await register.metrics();
+  assert.match(
+    metrics,
+    /lido_vault_health_factor\{[^}]*vault_name="vault-no-debt"[^}]*\}\s+\+Inf/,
+    "health_factor must serialize as +Inf when liability is zero"
+  );
+  assert.doesNotMatch(
+    metrics,
+    /lido_vault_health_factor\{[^}]*vault_name="vault-no-debt"[^}]*\}\s+0\s/,
+    "health_factor must NOT serialize as 0 when liability is zero"
+  );
+});

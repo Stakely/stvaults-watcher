@@ -374,7 +374,10 @@ export async function pollVaults(client, config, vaultConfigs, stEthAddress, vau
       vaultPdgUnlockedEth.set(labels, weiToEth(pdgUnlockedWei));
       vaultPdgPendingActivations.set(labels, Number(pdgPendingActivations));
       vaultPdgPolicy.set(labels, Number(pdgPolicy));
-      vaultHealthFactor.set(labels, Number.isFinite(healthFactorPct) ? healthFactorPct : 0);
+      // Pass Infinity through unchanged: prom-client emits "+Inf" for vaults with no
+      // minted stETH, which the dashboard handles via clamp_max(..., 9999) and an "∞"
+      // value mapping. Coercing to 0 here would flip a healthy vault into red.
+      vaultHealthFactor.set(labels, healthFactorPct);
       vaultIsHealthy.set(labels, isHealthy ? 1 : 0);
       vaultHealthShortfallShares.set(labels, healthShortfallShares === MAX_UINT256 ? 0 : Number(healthShortfallShares));
       vaultUtilizationRatio.set(labels, utilizationPct);

@@ -34,7 +34,7 @@ test("buildDashboard includes key panels by title", () => {
     "Withdrawal deficit",
     "Contracts",
     "Watcher logs",
-    "Connection",
+    "Connected to VaultHub",
     "Quarantine",
     "Quarantine pending value",
     "Quarantine ends",

@@ -1184,7 +1184,7 @@
         "x": 0,
         "y": 28,
         "w": 6,
-        "h": 7
+        "h": 8
       }
     },
     {
@@ -1249,7 +1249,7 @@
         "x": 6,
         "y": 28,
         "w": 6,
-        "h": 7
+        "h": 8
       }
     },
     {
@@ -1293,8 +1293,8 @@
       "gridPos": {
         "x": 12,
         "y": 28,
-        "w": 3,
-        "h": 7
+        "w": 4,
+        "h": 4
       }
     },
     {
@@ -1336,10 +1336,10 @@
       },
       "description": "% of Total Value reserved as collateral; stETH cannot be minted against this amount",
       "gridPos": {
-        "x": 15,
-        "y": 28,
-        "w": 3,
-        "h": 7
+        "x": 12,
+        "y": 32,
+        "w": 4,
+        "h": 4
       }
     },
     {
@@ -1373,10 +1373,10 @@
         }
       ],
       "gridPos": {
-        "x": 18,
+        "x": 16,
         "y": 28,
-        "w": 3,
-        "h": 7
+        "w": 4,
+        "h": 8
       },
       "fieldConfig": {
         "defaults": {
@@ -1471,17 +1471,17 @@
         "overrides": []
       },
       "gridPos": {
-        "x": 21,
+        "x": 20,
         "y": 28,
-        "w": 3,
-        "h": 7
+        "w": 4,
+        "h": 8
       }
     },
     {
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Connection",
+      "title": "Connected to VaultHub",
       "datasource": {
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
@@ -1507,10 +1507,10 @@
           "legendFormat": "{{vault_name}}"
         }
       ],
-      "description": "1 if the vault is disconnected from VaultHub (owner=0x0 or vaultIndex=0). Health factor is meaningless while disconnected.",
+      "description": "Whether the vault is registered in VaultHub (owner != 0x0 and vaultIndex != 0). The health factor is meaningless while disconnected.",
       "gridPos": {
         "x": 0,
-        "y": 35,
+        "y": 36,
         "w": 6,
         "h": 5
       },
@@ -1586,7 +1586,7 @@
       "description": "LazyOracle.vaultQuarantine.isActive. While ACTIVE, part of the CL capital is frozen and total_value does not include the pending increase.",
       "gridPos": {
         "x": 6,
-        "y": 35,
+        "y": 36,
         "w": 6,
         "h": 5
       },
@@ -1597,12 +1597,12 @@
               "type": "value",
               "options": {
                 "0": {
-                  "text": "INACTIVE",
+                  "text": "NONE",
                   "color": "#73BF69",
                   "index": 0
                 },
                 "1": {
-                  "text": "ACTIVE",
+                  "text": "QUARANTINED",
                   "color": "#FF780A",
                   "index": 1
                 }
@@ -1681,7 +1681,7 @@
       "description": "ETH that will be added to total_value once the quarantine ends.",
       "gridPos": {
         "x": 12,
-        "y": 35,
+        "y": 36,
         "w": 6,
         "h": 5
       }
@@ -1725,7 +1725,7 @@
       "description": "Wall-clock time when LazyOracle releases the quarantine. Shows '0' when inactive.",
       "gridPos": {
         "x": 18,
-        "y": 35,
+        "y": 36,
         "w": 6,
         "h": 5
       }
@@ -1791,7 +1791,7 @@
       ],
       "gridPos": {
         "x": 0,
-        "y": 40,
+        "y": 41,
         "w": 12,
         "h": 8
       }
@@ -1844,7 +1844,7 @@
       ],
       "gridPos": {
         "x": 12,
-        "y": 40,
+        "y": 41,
         "w": 12,
         "h": 8
       }
@@ -1857,7 +1857,7 @@
       "title": "🪙 stETH liability",
       "gridPos": {
         "x": 0,
-        "y": 48,
+        "y": 52,
         "h": 1,
         "w": 24
       }
@@ -1913,7 +1913,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 49,
+        "y": 50,
         "w": 8,
         "h": 5
       }
@@ -1969,7 +1969,7 @@
       },
       "gridPos": {
         "x": 8,
-        "y": 49,
+        "y": 50,
         "w": 8,
         "h": 5
       }
@@ -2025,7 +2025,7 @@
       },
       "gridPos": {
         "x": 16,
-        "y": 49,
+        "y": 50,
         "w": 8,
         "h": 5
       }
@@ -2038,7 +2038,7 @@
       "title": "📤 Withdrawal queue",
       "gridPos": {
         "x": 0,
-        "y": 54,
+        "y": 58,
         "h": 1,
         "w": 24
       }
@@ -2101,7 +2101,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 55,
+        "y": 56,
         "w": 6,
         "h": 5
       }
@@ -2157,7 +2157,7 @@
       },
       "gridPos": {
         "x": 6,
-        "y": 55,
+        "y": 56,
         "w": 6,
         "h": 5
       }
@@ -2200,7 +2200,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 55,
+        "y": 56,
         "w": 6,
         "h": 5
       }
@@ -2243,7 +2243,7 @@
       },
       "gridPos": {
         "x": 18,
-        "y": 55,
+        "y": 56,
         "w": 6,
         "h": 5
       }
@@ -2276,7 +2276,7 @@
       ],
       "gridPos": {
         "x": 0,
-        "y": 60,
+        "y": 61,
         "w": 24,
         "h": 8
       }
@@ -2289,7 +2289,7 @@
       "title": "🛡️ PDG (Predeposit Guarantee)",
       "gridPos": {
         "x": 0,
-        "y": 68,
+        "y": 72,
         "h": 1,
         "w": 24
       }
@@ -2375,7 +2375,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 69,
+        "y": 70,
         "w": 5,
         "h": 5
       }
@@ -2432,7 +2432,7 @@
       "description": "Total guarantee balance in PDG for this vault node operator.",
       "gridPos": {
         "x": 5,
-        "y": 69,
+        "y": 70,
         "w": 5,
         "h": 5
       }
@@ -2489,7 +2489,7 @@
       "description": "Guarantee currently locked by active predeposits.",
       "gridPos": {
         "x": 10,
-        "y": 69,
+        "y": 70,
         "w": 5,
         "h": 5
       }
@@ -2550,7 +2550,7 @@
       "description": "Guarantee available for new predeposits (total - locked).",
       "gridPos": {
         "x": 15,
-        "y": 69,
+        "y": 70,
         "w": 5,
         "h": 5
       }
@@ -2614,7 +2614,7 @@
       },
       "gridPos": {
         "x": 20,
-        "y": 69,
+        "y": 70,
         "w": 4,
         "h": 5
       }
@@ -2682,7 +2682,7 @@
       ],
       "gridPos": {
         "x": 0,
-        "y": 74,
+        "y": 75,
         "w": 24,
         "h": 8
       }
@@ -2695,7 +2695,7 @@
       "title": "🤖 Watcher",
       "gridPos": {
         "x": 0,
-        "y": 82,
+        "y": 86,
         "h": 1,
         "w": 24
       }
@@ -2759,7 +2759,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 83,
+        "y": 84,
         "w": 6,
         "h": 5
       }
@@ -2802,7 +2802,7 @@
       },
       "gridPos": {
         "x": 6,
-        "y": 83,
+        "y": 84,
         "w": 6,
         "h": 5
       }
@@ -2866,7 +2866,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 83,
+        "y": 84,
         "w": 6,
         "h": 5
       }
@@ -2879,7 +2879,7 @@
       "title": "📜 Logs",
       "gridPos": {
         "x": 0,
-        "y": 88,
+        "y": 92,
         "h": 1,
         "w": 24
       }
@@ -2914,7 +2914,7 @@
       ],
       "gridPos": {
         "x": 0,
-        "y": 89,
+        "y": 90,
         "w": 24,
         "h": 12
       }

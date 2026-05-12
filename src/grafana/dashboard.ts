@@ -51,7 +51,7 @@ const connectedMappings = [
   { type: "value" as const, options: { "0": { text: "CONNECTED", color: GREEN, index: 0 }, "1": { text: "DISCONNECTED", color: RED, index: 1 } } },
 ];
 const quarantineMappings = [
-  { type: "value" as const, options: { "0": { text: "INACTIVE", color: GREEN, index: 0 }, "1": { text: "ACTIVE", color: ORANGE, index: 1 } } },
+  { type: "value" as const, options: { "0": { text: "NONE", color: GREEN, index: 0 }, "1": { text: "QUARANTINED", color: ORANGE, index: 1 } } },
 ];
 
 // Color flips: disconnected/quarantine show RED/ORANGE when value is 1 (bad),
@@ -287,6 +287,9 @@ export function buildDashboard(): object {
   builder.withRow(new RowBuilder("🏥 Health"));
   y += 1;
 
+  // Health row uses height 8 (instead of the shared G=7) so the stacked
+  // Forced/Reserve panels can be the same height (4 each = 8 total).
+  const HEALTH_H = 8;
   builder
     .withPanel(gaugePanel({
       title: "Health factor",
@@ -297,7 +300,7 @@ export function buildDashboard(): object {
       valueMappings: [
         { type: "range" as const, options: { from: 9999, to: null as any, result: { text: "∞", color: GREEN } } },
       ] as any,
-      gridPos: pos(0, y, 6, G),
+      gridPos: pos(0, y, 6, HEALTH_H),
     }))
     .withPanel(gaugePanel({
       title: "stETH Minted",
@@ -306,15 +309,16 @@ export function buildDashboard(): object {
       unit: "percent", decimals: 2,
       min: 0, max: 100,
       thresholdSteps: utilizationThresh,
-      gridPos: pos(6, y, 6, G),
+      gridPos: pos(6, y, 6, HEALTH_H),
     }))
+    // Forced rebalance + Reserve ratio share a single 4-col slot, stacked equally.
     .withPanel(statPanel({
       title: "Forced rebalance threshold",
       expr: q("lido_vault_forced_rebalance_threshold"),
       unit: "percent", decimals: 2,
       description: "If Health Factor falls below 100% (based on this threshold), the vault is subject to forced rebalancing",
       colorMode: "none", graphMode: "none",
-      gridPos: pos(12, y, 3, G),
+      gridPos: pos(12, y, 4, HEALTH_H / 2),
     }))
     .withPanel(statPanel({
       title: "Reserve ratio",
@@ -322,7 +326,7 @@ export function buildDashboard(): object {
       unit: "percent", decimals: 2,
       description: "% of Total Value reserved as collateral; stETH cannot be minted against this amount",
       colorMode: "none", graphMode: "none",
-      gridPos: pos(15, y, 3, G),
+      gridPos: pos(12, y + HEALTH_H / 2, 4, HEALTH_H / 2),
     }))
     .withPanel(statPanel({
       title: "Oracle report",
@@ -330,7 +334,7 @@ export function buildDashboard(): object {
       colorMode: "background_solid", graphMode: "none",
       thresholdSteps: booleanFresh,
       valueMappings: freshMappings as any,
-      gridPos: pos(18, y, 3, G),
+      gridPos: pos(16, y, 4, HEALTH_H),
     }))
     .withPanel(statPanel({
       title: "Health shortfall",
@@ -339,16 +343,16 @@ export function buildDashboard(): object {
       description: "Shares needed to restore health (0 = healthy)",
       colorMode: "value", graphMode: "none",
       thresholdSteps: [{ value: null as any, color: GREEN }, { value: 1, color: RED }],
-      gridPos: pos(21, y, 3, G),
+      gridPos: pos(20, y, 4, HEALTH_H),
     }));
-  y += G;
+  y += HEALTH_H;
 
   // Connection + quarantine state (rare conditions surfaced by lido-cli).
   builder
     .withPanel(statPanel({
-      title: "Connection",
+      title: "Connected to VaultHub",
       expr: q("lido_vault_disconnected"),
-      description: "1 if the vault is disconnected from VaultHub (owner=0x0 or vaultIndex=0). Health factor is meaningless while disconnected.",
+      description: "Whether the vault is registered in VaultHub (owner != 0x0 and vaultIndex != 0). The health factor is meaningless while disconnected.",
       colorMode: "background_solid", graphMode: "none",
       thresholdSteps: disconnectedThresh,
       valueMappings: connectedMappings as any,
