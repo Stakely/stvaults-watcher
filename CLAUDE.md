@@ -15,10 +15,10 @@ when conventions change.
 
 ## Common commands
 
-- `npm test` — run JS tests with `node:test`
-- `npm run test:all` — JS tests + Grafana TS tests
-- `npm run grafana:build` — regenerate `grafana/dashboard.json`
-- `npm run lint` / `npm run lint:fix`
+- `pnpm test` — run JS tests with `node:test`
+- `pnpm run test:all` — JS tests + Grafana TS tests
+- `pnpm run grafana:build` — regenerate `grafana/dashboard.json`
+- `pnpm run lint` / `pnpm run lint:fix`
 - `node src/index.js` — run the watcher locally (needs `.env`)
 
 ## Release checklist (SemVer)
@@ -27,7 +27,7 @@ when conventions change.
 2. Update `version` in `package.json`.
 3. Update `.cursor/rules/*.mdc` and `README.md` for any new metric / alert /
    env var / contract (living-doc rule).
-4. `npm run test:all` and `npm run grafana:build` must pass.
+4. `pnpm run test:all` and `pnpm run grafana:build` must pass.
 5. Commit, tag, push — Docker image is published automatically on release
    (`.github/workflows/docker-publish.yml`).
 

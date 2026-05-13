@@ -34,7 +34,7 @@ Node.js 24 ESM app that monitors Lido V3 stVaults with DeFi Wrapper pools. Runs 
 
 ## Grafana dashboard
 
-Dashboard is defined as code in `src/grafana/` using the [Grafana Foundation SDK](https://grafana.com/docs/grafana/latest/observability-as-code/foundation-sdk) (TypeScript). Run `npm run grafana:build` at repo root to compile to `grafana/dashboard.json`. On import, Grafana prompts for **Prometheus** and **Loki** via `__inputs` (`DS_PROMETHEUS`, `DS_LOKI`) injected by `src/grafana/build.ts`. Panel datasources reference `${DS_PROMETHEUS}` / `${DS_LOKI}` (`DATASOURCE_VAR` in `src/grafana/panels.ts`, `LOKI_DS_VAR` in `src/grafana/dashboard.ts`). Template variables at runtime: **Chain**, **Vault**, etc. — not datasource pickers in the row.
+Dashboard is defined as code in `src/grafana/` using the [Grafana Foundation SDK](https://grafana.com/docs/grafana/latest/observability-as-code/foundation-sdk) (TypeScript). Run `pnpm run grafana:build` at repo root to compile to `grafana/dashboard.json`. On import, Grafana prompts for **Prometheus** and **Loki** via `__inputs` (`DS_PROMETHEUS`, `DS_LOKI`) injected by `src/grafana/build.ts`. Panel datasources reference `${DS_PROMETHEUS}` / `${DS_LOKI}` (`DATASOURCE_VAR` in `src/grafana/panels.ts`, `LOKI_DS_VAR` in `src/grafana/dashboard.ts`). Template variables at runtime: **Chain**, **Vault**, etc. — not datasource pickers in the row.
 
 ## Contracts read
 

@@ -1,0 +1,7 @@
+allowBuilds:
+  esbuild: true
+
+# Supply chain: only install packages published at least 3 days ago.
+# Blocks zero-day malicious releases (e.g. the nx, event-stream, ua-parser-js incidents).
+# Value is in minutes: 3 days × 24 h × 60 min = 4320.
+minimumReleaseAge: 4320
