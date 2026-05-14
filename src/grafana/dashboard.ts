@@ -127,11 +127,17 @@ export function buildDashboard(): object {
 
   let y = 0;
   const S = 5;
-  const G = 7;
   const T = 8;
 
+  // Helper: explicit gridPos on every row. Without it, the Foundation SDK
+  // auto-places rows based on max-bottom of already-added panels, which
+  // miscalculates when a row contains sub-stacks (e.g. Forced/Reserve inside
+  // Health). The result was rows appearing visually *after* their own panels.
+  const row = (title: string, atY: number) =>
+    new RowBuilder(title).gridPos(pos(0, atY, 24, 1));
+
   // ==================== 📊 Status ====================
-  builder.withRow(new RowBuilder("📊 Status"));
+  builder.withRow(row("📊 Status", y));
   y += 1;
 
   builder
@@ -192,7 +198,7 @@ export function buildDashboard(): object {
   y += S;
 
   // ==================== 💰 Vault state ====================
-  builder.withRow(new RowBuilder("💰 Vault state"));
+  builder.withRow(row("💰 Vault state", y));
   y += 1;
 
   const DS_REF = { type: "prometheus" as const, uid: `\${${DATASOURCE_VAR}}` };
@@ -270,7 +276,7 @@ export function buildDashboard(): object {
   y += T;
 
   // ==================== 📋 Contracts ====================
-  builder.withRow(new RowBuilder("📋 Contracts"));
+  builder.withRow(row("📋 Contracts", y));
   y += 1;
   builder.withPanel(
     new RawStatBuilder()
@@ -284,7 +290,7 @@ export function buildDashboard(): object {
   y += 6;
 
   // ==================== 🏥 Health ====================
-  builder.withRow(new RowBuilder("🏥 Health"));
+  builder.withRow(row("🏥 Health", y));
   y += 1;
 
   // Health row uses height 8 (instead of the shared G=7) so the stacked
@@ -379,9 +385,15 @@ export function buildDashboard(): object {
     .withPanel(statPanel({
       title: "Quarantine ends",
       expr: `${q("lido_vault_quarantine_end_timestamp")} * 1000`,
-      description: "Wall-clock time when LazyOracle releases the quarantine. Shows '0' when inactive.",
+      description: "Wall-clock time when LazyOracle releases the quarantine. Shows '—' when there is no active quarantine.",
       unit: "dateTimeFromNow",
       colorMode: "none", graphMode: "none",
+      // Without this mapping, dateTimeFromNow turns 0 into "56 years ago" (the
+      // Unix epoch). Map 0 to an em-dash so the panel reads cleanly when the
+      // vault has no active quarantine.
+      valueMappings: [
+        { type: "value" as const, options: { "0": { text: "—", index: 0 } } },
+      ] as any,
       gridPos: pos(18, y, 6, S),
     }));
   y += S;
@@ -409,7 +421,7 @@ export function buildDashboard(): object {
   y += T;
 
   // ==================== 🪙 stETH liability ====================
-  builder.withRow(new RowBuilder("🪙 stETH liability"));
+  builder.withRow(row("🪙 stETH liability", y));
   y += 1;
 
   builder
@@ -440,7 +452,7 @@ export function buildDashboard(): object {
   y += S;
 
   // ==================== 📤 Withdrawal queue ====================
-  builder.withRow(new RowBuilder("📤 Withdrawal queue"));
+  builder.withRow(row("📤 Withdrawal queue", y));
   y += 1;
 
   builder
@@ -486,7 +498,7 @@ export function buildDashboard(): object {
   y += T;
 
   // ==================== 🛡️ PDG ====================
-  builder.withRow(new RowBuilder("🛡️ PDG (Predeposit Guarantee)"));
+  builder.withRow(row("🛡️ PDG (Predeposit Guarantee)", y));
   y += 1;
 
   builder
@@ -556,7 +568,7 @@ export function buildDashboard(): object {
   y += T;
 
   // ==================== 🤖 Watcher ====================
-  builder.withRow(new RowBuilder("🤖 Watcher"));
+  builder.withRow(row("🤖 Watcher", y));
   y += 1;
 
   builder
@@ -590,7 +602,7 @@ export function buildDashboard(): object {
   y += S;
 
   // ==================== 📜 Logs ====================
-  builder.withRow(new RowBuilder("📜 Logs"));
+  builder.withRow(row("📜 Logs", y));
   y += 1;
 
   builder.withPanel(
