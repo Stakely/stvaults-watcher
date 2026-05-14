@@ -81,6 +81,7 @@ function parseEthToWeiBigInt(raw) {
  * @property {string} vaultHubAddress
  * @property {string} stEthAddress
  * @property {string} pdgAddress - PredepositGuarantee contract address
+ * @property {string} lazyOracleAddress - LazyOracle contract address (vault quarantine state)
  * @property {number} pollIntervalMs
  * @property {number} metricsPort
  * @property {string} [discordWebhookUrl]
@@ -200,6 +201,7 @@ export function loadConfig() {
     vaultHubAddress: contracts.vaultHub,
     stEthAddress: contracts.stEth,
     pdgAddress: contracts.pdg,
+    lazyOracleAddress: contracts.lazyOracle,
     pollIntervalMs,
     metricsPort,
     discordWebhookUrl: process.env.DISCORD_WEBHOOK_URL?.trim() || undefined,

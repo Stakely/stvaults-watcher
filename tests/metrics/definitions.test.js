@@ -23,6 +23,10 @@ test("register contains expected metric names", async () => {
   for (const requiredName of [
     "lido_vault_total_value_eth",
     "lido_vault_health_factor",
+    "lido_vault_disconnected",
+    "lido_vault_quarantine_active",
+    "lido_vault_quarantine_pending_value_eth",
+    "lido_vault_quarantine_end_timestamp",
     "lido_wq_unfinalized_requests",
     "lido_vault_contracts_info",
     "stvaults_watcher_info",

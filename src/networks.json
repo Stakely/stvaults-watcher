@@ -5,7 +5,8 @@
     "contracts": {
       "vaultHub": "0x1d201BE093d847f6446530Efb0E8Fb426d176709",
       "stEth": "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",
-      "pdg": "0xF4bF42c6D6A0E38825785048124DBAD6c9eaaac3"
+      "pdg": "0xF4bF42c6D6A0E38825785048124DBAD6c9eaaac3",
+      "lazyOracle": "0x5DB427080200c235F2Ae8Cd17A7be87921f7AD6c"
     }
   },
   "hoodi": {
@@ -14,7 +15,8 @@
     "contracts": {
       "vaultHub": "0x4C9fFC325392090F789255b9948Ab1659b797964",
       "stEth": "0x3508A952176b3c15387C97BE809eaffB1982176a",
-      "pdg": "0xa5F55f3402beA2B14AE15Dae1b6811457D43581d"
+      "pdg": "0xa5F55f3402beA2B14AE15Dae1b6811457D43581d",
+      "lazyOracle": "0xf41491C79C30e8f4862d3F4A5b790171adB8e04A"
     }
   }
 }

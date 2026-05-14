@@ -125,6 +125,24 @@ All ETH values are in ETH (not wei), except metrics explicitly named as shares/i
 | `lido_vault_report_fresh` | `1` if oracle report is fresh, `0` if stale |
 | `lido_vault_forced_rebalance_threshold` | Forced rebalance threshold (%) |
 | `lido_vault_reserve_ratio` | Reserve ratio (%) |
+| `lido_vault_disconnected` | `1` if vault is disconnected from VaultHub, `0` otherwise |
+
+The health factor matches `lido-staking-vault-cli vo r health` bit-for-bit:
+arithmetic in BigInt with 1e18 precision, liability converted via
+`stETH.getPooledEthBySharesRoundUp`, and `is_healthy` derived from
+`health_factor >= 100` (not read from `VaultHub.isVaultHealthy()`).
+
+### Vault - Quarantine (LazyOracle)
+
+When `LazyOracle.vaultQuarantine` flags part of the CL capital as frozen, the
+watcher exposes the pending value increase and the unlock timestamp so an
+operator can correlate health swings with the quarantine window.
+
+| Metric | Description |
+|---|---|
+| `lido_vault_quarantine_active` | `1` if vault CL capital is in quarantine, `0` otherwise |
+| `lido_vault_quarantine_pending_value_eth` | ETH that will be added to `total_value` once the quarantine ends |
+| `lido_vault_quarantine_end_timestamp` | Unix timestamp when the quarantine ends (`0` when inactive) |
 
 ### Vault - stETH
 
