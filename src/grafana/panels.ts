@@ -4,7 +4,10 @@
  * value mappings and proper sizing.
  */
 
-import { ReduceDataOptionsBuilder } from "@grafana/grafana-foundation-sdk/common";
+import {
+  ReduceDataOptionsBuilder,
+  VizLegendOptionsBuilder,
+} from "@grafana/grafana-foundation-sdk/common";
 import {
   FieldColorBuilder,
   ThresholdsConfigBuilder,
@@ -135,11 +138,20 @@ export function gaugePanel(o: GaugeOpts): GaugePanelBuilder {
 }
 
 export function timeseriesPanel(o: TsOpts): TimeseriesPanelBuilder {
+  // The SDK emits its own `options` defaults (showLegend: false) since 0.0.18,
+  // so the legend has to be enabled explicitly to keep the previous rendering.
   const p = new TimeseriesPanelBuilder()
     .title(o.title)
     .datasource(DS)
     .lineWidth(2)
     .fillOpacity(15)
+    .legend(
+      new VizLegendOptionsBuilder()
+        .showLegend(true)
+        .displayMode("list" as any)
+        .placement("bottom" as any)
+        .calcs([]),
+    )
     .withTarget(new DataqueryBuilder().expr(o.expr).legendFormat(o.legendLabel ?? "{{vault_name}}"));
 
   if (o.unit) p.unit(o.unit);
