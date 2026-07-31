@@ -100,11 +100,6 @@
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Watcher version",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "graphMode": "none",
         "colorMode": "background_solid",
@@ -119,6 +114,11 @@
         },
         "percentChangeColorMode": "standard",
         "orientation": "auto"
+      },
+      "title": "Watcher version",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -154,11 +154,6 @@
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Watcher alive",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "graphMode": "none",
         "colorMode": "background_solid",
@@ -173,6 +168,11 @@
         },
         "percentChangeColorMode": "standard",
         "orientation": "auto"
+      },
+      "title": "Watcher alive",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -230,11 +230,6 @@
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Vault healthy",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "graphMode": "none",
         "colorMode": "background_solid",
@@ -249,6 +244,11 @@
         },
         "percentChangeColorMode": "standard",
         "orientation": "auto"
+      },
+      "title": "Vault healthy",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -306,11 +306,6 @@
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Unfinalized requests",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "graphMode": "none",
         "colorMode": "background_solid",
@@ -325,6 +320,11 @@
         },
         "percentChangeColorMode": "standard",
         "orientation": "auto"
+      },
+      "title": "Unfinalized requests",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -370,11 +370,6 @@
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Inactive ETH",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "graphMode": "none",
         "colorMode": "background_solid",
@@ -389,6 +384,11 @@
         },
         "percentChangeColorMode": "standard",
         "orientation": "auto"
+      },
+      "title": "Inactive ETH",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -435,11 +435,6 @@
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Withdrawal deficit",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "graphMode": "none",
         "colorMode": "background_solid",
@@ -454,6 +449,11 @@
         },
         "percentChangeColorMode": "standard",
         "orientation": "auto"
+      },
+      "title": "Withdrawal deficit",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -513,11 +513,6 @@
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Total value",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "graphMode": "area",
         "colorMode": "value",
@@ -532,6 +527,11 @@
         },
         "percentChangeColorMode": "standard",
         "orientation": "auto"
+      },
+      "title": "Total value",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -570,11 +570,6 @@
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Available balance",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "graphMode": "area",
         "colorMode": "value",
@@ -589,6 +584,11 @@
         },
         "percentChangeColorMode": "standard",
         "orientation": "auto"
+      },
+      "title": "Available balance",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -627,11 +627,6 @@
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Staged balance",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "graphMode": "area",
         "colorMode": "value",
@@ -646,6 +641,11 @@
         },
         "percentChangeColorMode": "standard",
         "orientation": "auto"
+      },
+      "title": "Staged balance",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -684,11 +684,6 @@
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Withdrawable value",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "graphMode": "area",
         "colorMode": "value",
@@ -703,6 +698,11 @@
         },
         "percentChangeColorMode": "standard",
         "orientation": "auto"
+      },
+      "title": "Withdrawable value",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -741,11 +741,6 @@
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Node Operator fee",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "graphMode": "area",
         "colorMode": "value",
@@ -760,6 +755,11 @@
         },
         "percentChangeColorMode": "standard",
         "orientation": "auto"
+      },
+      "title": "Node Operator fee",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -798,11 +798,6 @@
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Staking efficiency",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "graphMode": "none",
         "colorMode": "background_solid",
@@ -817,6 +812,11 @@
         },
         "percentChangeColorMode": "standard",
         "orientation": "auto"
+      },
+      "title": "Staking efficiency",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -863,10 +863,17 @@
       "type": "timeseries",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Total value (ETH)",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "asc"
+        }
       },
       "fieldConfig": {
         "defaults": {
@@ -878,6 +885,11 @@
           "decimals": 4
         },
         "overrides": []
+      },
+      "title": "Total value (ETH)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -896,10 +908,17 @@
       "type": "timeseries",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Available vs Staged (ETH)",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "asc"
+        }
       },
       "fieldConfig": {
         "defaults": {
@@ -911,6 +930,11 @@
           "decimals": 4
         },
         "overrides": []
+      },
+      "title": "Available vs Staged (ETH)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -1114,11 +1138,6 @@
       "type": "gauge",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Health factor",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "showThresholdLabels": false,
         "showThresholdMarkers": true,
@@ -1131,6 +1150,11 @@
         },
         "minVizHeight": 75,
         "orientation": "auto"
+      },
+      "title": "Health factor",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -1191,11 +1215,6 @@
       "type": "gauge",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "stETH Minted",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "showThresholdLabels": false,
         "showThresholdMarkers": true,
@@ -1208,6 +1227,11 @@
         },
         "minVizHeight": 75,
         "orientation": "auto"
+      },
+      "title": "stETH Minted",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -1256,11 +1280,6 @@
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Forced rebalance threshold",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "graphMode": "none",
         "colorMode": "none",
@@ -1275,6 +1294,11 @@
         },
         "percentChangeColorMode": "standard",
         "orientation": "auto"
+      },
+      "title": "Forced rebalance threshold",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -1301,11 +1325,6 @@
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Reserve ratio",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "graphMode": "none",
         "colorMode": "none",
@@ -1320,6 +1339,11 @@
         },
         "percentChangeColorMode": "standard",
         "orientation": "auto"
+      },
+      "title": "Reserve ratio",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -1346,11 +1370,6 @@
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Oracle report",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "graphMode": "none",
         "colorMode": "background_solid",
@@ -1365,6 +1384,11 @@
         },
         "percentChangeColorMode": "standard",
         "orientation": "auto"
+      },
+      "title": "Oracle report",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -1421,11 +1445,6 @@
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Health shortfall",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "graphMode": "none",
         "colorMode": "value",
@@ -1440,6 +1459,11 @@
         },
         "percentChangeColorMode": "standard",
         "orientation": "auto"
+      },
+      "title": "Health shortfall",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -1481,11 +1505,6 @@
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Connected to VaultHub",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "graphMode": "none",
         "colorMode": "background_solid",
@@ -1500,6 +1519,11 @@
         },
         "percentChangeColorMode": "standard",
         "orientation": "auto"
+      },
+      "title": "Connected to VaultHub",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -1557,11 +1581,6 @@
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Quarantine",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "graphMode": "none",
         "colorMode": "background_solid",
@@ -1576,6 +1595,11 @@
         },
         "percentChangeColorMode": "standard",
         "orientation": "auto"
+      },
+      "title": "Quarantine",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -1633,11 +1657,6 @@
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Quarantine pending value",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "graphMode": "area",
         "colorMode": "value",
@@ -1652,6 +1671,11 @@
         },
         "percentChangeColorMode": "standard",
         "orientation": "auto"
+      },
+      "title": "Quarantine pending value",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -1690,11 +1714,6 @@
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Quarantine ends",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "graphMode": "none",
         "colorMode": "none",
@@ -1709,6 +1728,11 @@
         },
         "percentChangeColorMode": "standard",
         "orientation": "auto"
+      },
+      "title": "Quarantine ends",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -1745,10 +1769,17 @@
       "type": "timeseries",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Health factor %",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "asc"
+        }
       },
       "fieldConfig": {
         "defaults": {
@@ -1794,6 +1825,11 @@
         },
         "overrides": []
       },
+      "title": "Health factor %",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
       "targets": [
         {
           "expr": "clamp_max(lido_vault_health_factor{chain=~\"$chain\",vault_name=~\"$vault_name\"}, 9999)",
@@ -1811,10 +1847,17 @@
       "type": "timeseries",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "stETH Minted %",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "asc"
+        }
       },
       "fieldConfig": {
         "defaults": {
@@ -1847,6 +1890,11 @@
         },
         "overrides": []
       },
+      "title": "stETH Minted %",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
       "targets": [
         {
           "expr": "lido_vault_utilization_ratio{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
@@ -1877,11 +1925,6 @@
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "stETH liability",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "graphMode": "area",
         "colorMode": "value",
@@ -1896,6 +1939,11 @@
         },
         "percentChangeColorMode": "standard",
         "orientation": "auto"
+      },
+      "title": "stETH liability",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -1933,11 +1981,6 @@
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Minting capacity",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "graphMode": "area",
         "colorMode": "value",
@@ -1952,6 +1995,11 @@
         },
         "percentChangeColorMode": "standard",
         "orientation": "auto"
+      },
+      "title": "Minting capacity",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -1989,11 +2037,6 @@
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Withdrawable value",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "graphMode": "area",
         "colorMode": "value",
@@ -2008,6 +2051,11 @@
         },
         "percentChangeColorMode": "standard",
         "orientation": "auto"
+      },
+      "title": "Withdrawable value",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -2058,11 +2106,6 @@
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Unfinalized requests",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "graphMode": "none",
         "colorMode": "background_solid",
@@ -2077,6 +2120,11 @@
         },
         "percentChangeColorMode": "standard",
         "orientation": "auto"
+      },
+      "title": "Unfinalized requests",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -2121,11 +2169,6 @@
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Unfinalized assets",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "graphMode": "area",
         "colorMode": "value",
@@ -2140,6 +2183,11 @@
         },
         "percentChangeColorMode": "standard",
         "orientation": "auto"
+      },
+      "title": "Unfinalized assets",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -2177,11 +2225,6 @@
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Last request ID",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "graphMode": "none",
         "colorMode": "none",
@@ -2196,6 +2239,11 @@
         },
         "percentChangeColorMode": "standard",
         "orientation": "auto"
+      },
+      "title": "Last request ID",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -2220,11 +2268,6 @@
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Last finalized ID",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "graphMode": "none",
         "colorMode": "none",
@@ -2239,6 +2282,11 @@
         },
         "percentChangeColorMode": "standard",
         "orientation": "auto"
+      },
+      "title": "Last finalized ID",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -2263,10 +2311,17 @@
       "type": "timeseries",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Unfinalized assets (ETH)",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "asc"
+        }
       },
       "fieldConfig": {
         "defaults": {
@@ -2278,6 +2333,11 @@
           "decimals": 4
         },
         "overrides": []
+      },
+      "title": "Unfinalized assets (ETH)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -2309,11 +2369,6 @@
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "PDG Policy",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "graphMode": "none",
         "colorMode": "background_solid",
@@ -2328,6 +2383,11 @@
         },
         "percentChangeColorMode": "standard",
         "orientation": "auto"
+      },
+      "title": "PDG Policy",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -2395,11 +2455,6 @@
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "PDG Total",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "graphMode": "none",
         "colorMode": "value",
@@ -2414,6 +2469,11 @@
         },
         "percentChangeColorMode": "standard",
         "orientation": "auto"
+      },
+      "title": "PDG Total",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -2452,11 +2512,6 @@
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "PDG Locked",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "graphMode": "none",
         "colorMode": "value",
@@ -2471,6 +2526,11 @@
         },
         "percentChangeColorMode": "standard",
         "orientation": "auto"
+      },
+      "title": "PDG Locked",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -2509,11 +2569,6 @@
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "PDG Unlocked",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "graphMode": "none",
         "colorMode": "value",
@@ -2528,6 +2583,11 @@
         },
         "percentChangeColorMode": "standard",
         "orientation": "auto"
+      },
+      "title": "PDG Unlocked",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -2570,11 +2630,6 @@
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "PDG Pending activations",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "graphMode": "none",
         "colorMode": "background_solid",
@@ -2589,6 +2644,11 @@
         },
         "percentChangeColorMode": "standard",
         "orientation": "auto"
+      },
+      "title": "PDG Pending activations",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -2634,10 +2694,17 @@
       "type": "timeseries",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "PDG Locked vs Unlocked (ETH)",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "asc"
+        }
       },
       "fieldConfig": {
         "defaults": {
@@ -2681,6 +2748,11 @@
           }
         ]
       },
+      "title": "PDG Locked vs Unlocked (ETH)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
       "targets": [
         {
           "expr": "lido_vault_pdg_locked_eth{chain=~\"$chain\",vault_name=~\"$vault_name\"}",
@@ -2715,11 +2787,6 @@
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Poll errors",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "graphMode": "none",
         "colorMode": "value",
@@ -2734,6 +2801,11 @@
         },
         "percentChangeColorMode": "standard",
         "orientation": "auto"
+      },
+      "title": "Poll errors",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -2779,11 +2851,6 @@
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Last successful poll",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "graphMode": "none",
         "colorMode": "none",
@@ -2798,6 +2865,11 @@
         },
         "percentChangeColorMode": "standard",
         "orientation": "auto"
+      },
+      "title": "Last successful poll",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -2822,11 +2894,6 @@
       "type": "stat",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Time since last poll",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "options": {
         "graphMode": "none",
         "colorMode": "value",
@@ -2841,6 +2908,11 @@
         },
         "percentChangeColorMode": "standard",
         "orientation": "auto"
+      },
+      "title": "Time since last poll",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "targets": [
         {
@@ -2899,11 +2971,6 @@
       "type": "logs",
       "transparent": false,
       "repeatDirection": "h",
-      "title": "Watcher logs",
-      "datasource": {
-        "type": "loki",
-        "uid": "${DS_LOKI}"
-      },
       "options": {
         "showLabels": false,
         "showCommonLabels": false,
@@ -2916,6 +2983,11 @@
         "dedupStrategy": "none",
         "fontSize": "sm",
         "syntaxHighlighting": true
+      },
+      "title": "Watcher logs",
+      "datasource": {
+        "type": "loki",
+        "uid": "${DS_LOKI}"
       },
       "targets": [
         {
