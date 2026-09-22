@@ -502,7 +502,7 @@ test("lido_vault_health_factor exposes +Inf (not 0) when liability is zero", asy
   assert.equal(snapshots[0].healthFactorPct, Infinity);
   assert.equal(snapshots[0].isHealthy, true);
 
-  // Prometheus output must emit +Inf (the prom-client representation of Infinity),
+  // Prometheus output must emit +Inf (the client representation of Infinity),
   // never 0. The dashboard relies on this to render "∞" in the Health factor gauge.
   const metrics = await register.metrics();
   assert.match(

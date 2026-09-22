@@ -374,7 +374,7 @@ export async function pollVaults(client, config, vaultConfigs, stEthAddress, vau
       vaultPdgUnlockedEth.set(labels, weiToEth(pdgUnlockedWei));
       vaultPdgPendingActivations.set(labels, Number(pdgPendingActivations));
       vaultPdgPolicy.set(labels, Number(pdgPolicy));
-      // Pass Infinity through unchanged: prom-client emits "+Inf" for vaults with no
+      // Pass Infinity through unchanged: the Prometheus client emits "+Inf" for vaults with no
       // minted stETH, which the dashboard handles via clamp_max(..., 9999) and an "∞"
       // value mapping. Coercing to 0 here would flip a healthy vault into red.
       vaultHealthFactor.set(labels, healthFactorPct);
