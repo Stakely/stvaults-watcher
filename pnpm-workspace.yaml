@@ -5,3 +5,8 @@ allowBuilds:
 # Blocks zero-day malicious releases (e.g. the nx, event-stream, ua-parser-js incidents).
 # Value is in minutes: 7 days × 24 h × 60 min = 10080.
 minimumReleaseAge: 10080
+
+# Obliga a pedir el metadata COMPLETO del registry. El abreviado que pnpm usa
+# por defecto no trae el campo "time", y sin el pnpm se salta la cuarentena
+# con un simple WARN. Sin esto la politica es parcial y silenciosamente laxa.
+registrySupportsTimeField: true
