@@ -6,11 +6,9 @@ allowBuilds:
 # Value is in minutes: 7 days × 24 h × 60 min = 10080.
 minimumReleaseAge: 10080
 
-# Obliga a pedir el metadata COMPLETO del registry. El abreviado que pnpm usa
-# por defecto no trae el campo "time", y sin el pnpm se salta la cuarentena
-# con un simple WARN. Sin esto la politica es parcial y silenciosamente laxa.
-registrySupportsTimeField: true
-
-# Si aun asi a un paquete le falta el campo "time", fallar en vez de saltarse
-# la comprobacion en silencio.
+# El default de pnpm para esta opcion es `true`, y con `true` pnpm no falla
+# cuando el metadata de un paquete no trae el campo "time": avisa con un WARN
+# ("skipping the minimumReleaseAge check for this package") e instala esa
+# version sin comprobar su edad. En false la politica es fail-closed: si no se
+# puede verificar la edad, el install se para en vez de seguir.
 minimumReleaseAgeIgnoreMissingTime: false
