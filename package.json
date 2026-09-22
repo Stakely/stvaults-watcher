@@ -15,7 +15,7 @@
     "grafana:build": "tsx src/grafana/build.ts"
   },
   "engines": {
-    "node": ">=20",
+    "node": ">=24",
     "pnpm": ">=11"
   },
   "dependencies": {

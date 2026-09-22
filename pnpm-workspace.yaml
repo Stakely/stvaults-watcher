@@ -12,3 +12,8 @@ minimumReleaseAge: 10080
 # version sin comprobar su edad. En false la politica es fail-closed: si no se
 # puede verificar la edad, el install se para en vez de seguir.
 minimumReleaseAgeIgnoreMissingTime: false
+
+# Fallar el install si el Node en uso no cumple `engines`, en vez de avisar y
+# seguir. Sin esto la declaracion de engines es decorativa: un Node 20 instalaba
+# igual @prometheus-io/client, que pide ^22 || ^24 || >=26.
+engineStrict: true
