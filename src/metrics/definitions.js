@@ -1,4 +1,4 @@
-import { Registry, Gauge, Counter } from 'prom-client';
+import { Registry, Gauge, Counter } from '@prometheus-io/client';
 
 const defaultLabels = ['vault', 'vault_name', 'chain'];
 

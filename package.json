@@ -1,6 +1,6 @@
 {
   "name": "stvaults-watcher",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "Monitor for Lido stVaults. Prometheus metrics and Discord alerts",
   "type": "module",
   "main": "src/index.js",
@@ -15,11 +15,11 @@
     "grafana:build": "tsx src/grafana/build.ts"
   },
   "engines": {
-    "node": ">=20",
+    "node": ">=24",
     "pnpm": ">=11"
   },
   "dependencies": {
-    "prom-client": "^15.1.3",
+    "@prometheus-io/client": "^0.16.1",
     "viem": "^2.56.5"
   },
   "devDependencies": {
