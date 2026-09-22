@@ -10,3 +10,7 @@ minimumReleaseAge: 10080
 # por defecto no trae el campo "time", y sin el pnpm se salta la cuarentena
 # con un simple WARN. Sin esto la politica es parcial y silenciosamente laxa.
 registrySupportsTimeField: true
+
+# Si aun asi a un paquete le falta el campo "time", fallar en vez de saltarse
+# la comprobacion en silencio.
+minimumReleaseAgeIgnoreMissingTime: false
